@@ -1,0 +1,6 @@
+$('table.wikitable tbody tr td')
+
+1,080 <td> elements
+
+12 cols
+90? rows
