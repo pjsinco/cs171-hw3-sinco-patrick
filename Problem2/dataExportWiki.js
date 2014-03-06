@@ -22,60 +22,34 @@ $.ajax({
     });
     
     // get the rows we're interested in
-    var popDataRaw = 
+    var popData = 
       root.find('table.wikitable tbody tr:nth-child(n+12)');
 
-    // we'll keep a 2d array of our rows here, csv-ready
-    var popDataFormatted = [];
+    // 2d array for collecting rows 
+    var popDataRow = [];
 
-    var test = [[], []];
-    $.each(popDataRaw, function(index) {
-      var tds = $(this).find('td');
+    $.each(popData, function(index) {
 
-      $.each(tds, function(index) {
-        var year, estCensus, estPopRef, estUn, estHyde, estMadison;
-        if (index % 12 === 0) {
-          test[index].push(convertToInt($(this).text()));
-        } else if (index % 12 === 1) {
-          test[index].push(convertToInt($(this).text()));
-        } else if (index % 12 === 2) {
+      var tds = $(this).find('td'); // get 
+      var csvRow = [] // temp array for collecting our values
 
+      $.each(tds, function(i) {
+        //var val = convertToInt($(this).text().trim());
+        // grab values from first 5 elements in row
+        if (i === 0 || i === 1 || i === 2 ||
+          i === 3 || i == 4) {
+          csvRow.push(convertToInt($(this).text().trim()));
+        } else if (i === 11) {
+          // we're at the end of row, so push to master array
+          // and clear temp array
+          popDataRow.push(csvRow.join(','));
+          csvRow = [];
         }
       }); // end .each()
     }); // end .each()
-    console.log(test);
 
-//    $.each(popDataRaw.find('td'), function(cellIndex) {
-//      var numCols = 12;
-//      var year, estCensus, estPopRef, estUn, estHyde, estMadison;
-//      var data = [];
-//
-//        if (cellIndex % numCols === 0) {
-//          data.push(convertToInt($(this).text()));
-//        } else if (cellIndex % numCols === 1) {
-//          //console.log(convertToInt($(this).text()));
-//          //console.log($(this).text() == );
-//          data.push(estCensus = convertToInt($(this).text()));
-//        } else if (cellIndex % numCols === 2) {
-//          data.push(convertToInt($(this).text()));
-//        } else if (cellIndex % numCols === 3) {
-//          data.push(convertToInt($(this).text()));
-//        } else if (cellIndex % numCols === 4) {
-//          data.push(convertToInt($(this).text()));
-//        } else if (cellIndex % numCols === 5) {
-//          data.push(convertToInt($(this).text()));
-//        }
-//      
-//        popDataFormatted.push(data);
-//        //popDataFormatted.push(year + ',' + estCensus + ',' + estPopRef
-//          //+ ',' + estUn + ',' + estHyde + ',' + estMadison);
-//      //}
-//
-//    }); // end .each();
-
-    console.log(popDataFormatted);
-
-    //saveToFile(['hello world'], 'text.txt');
+    
+    saveToFile(popDataRow, 'popData.csv');
   }, // end success
   error: function() {
     return console.log('error');
