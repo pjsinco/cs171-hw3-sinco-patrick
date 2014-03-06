@@ -11,7 +11,7 @@ var width = 960 - margin.left - margin.right;
 var height = 300 - margin.bottom - margin.top;
 
 var bbVis = {
-  x: 0 + 100,
+  x: 100,
   y: 10,
   w: width - 100,
   h: 100
@@ -29,11 +29,10 @@ svg
   .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
 
 d3.csv('population-data.csv', function(data) {
-  console.log(data);
+  console.log(data); // debug
+  console.log(data[3].year);// debug
 
-  console.log(data[3].year);
-
-  return createVis();
+  //return createVis();
 });
 
 var createVis = function() {
