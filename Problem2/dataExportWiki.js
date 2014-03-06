@@ -22,34 +22,53 @@ $.ajax({
     });
     
     // get the rows we're interested in
-    var popData = 
+    var data = 
       root.find('table.wikitable tbody tr:nth-child(n+12)');
 
-    // 2d array for collecting rows 
-    var popDataRow = [];
+    // array for collecting rows 
+    var dataRow = [];
+    // temp array for collecting values
+    var csvRow = [];
 
-    $.each(popData, function(index) {
+    // get header row and put in data
+    var headers = root.find('table.wikitable th')
+    $.each(headers, function(i) {
+      if (i === 0 || i === 1 || i === 2 || 
+        i === 3 || i === 4 || i === 5) {
+        csvRow.push($(this).find('>:first-child').text());
+      }
+    });
+    dataRow.push(csvRow.join(','));
+
+    // mine our captured rows for our targeted <td> values 
+    $.each(data, function(index) {
 
       var tds = $(this).find('td'); // get 
-      var csvRow = [] // temp array for collecting our values
+      csvRow = [] 
 
       $.each(tds, function(i) {
         //var val = convertToInt($(this).text().trim());
-        // grab values from first 5 elements in row
+        // grab values from first 6 elements in row
         if (i === 0 || i === 1 || i === 2 ||
-          i === 3 || i == 4) {
+          i === 3 || i === 4 || i === 5) {
           csvRow.push(convertToInt($(this).text().trim()));
         } else if (i === 11) {
           // we're at the end of row, so push to master array
           // and clear temp array
-          popDataRow.push(csvRow.join(','));
-          csvRow = [];
+          for (var j = 1; j < csvRow.length; j++) {
+            if (csvRow[j]) {
+              dataRow.push(csvRow.join(','));
+              break;
+            } else {
+              continue;
+            }
+            csvRow = [];
+          }
         }
       }); // end .each()
     }); // end .each()
-
     
-    saveToFile(popDataRow, 'popData.csv');
+    saveToFile(dataRow, 'data.csv');
   }, // end success
   error: function() {
     return console.log('error');
@@ -60,7 +79,7 @@ var convertToInt = function(str) {
   if (str) {
     return parseInt(str.replace(/,/g, ""), 10);
   } else {
-    return 0;
+    return null;
   }
 };
 
