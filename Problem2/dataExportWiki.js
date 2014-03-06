@@ -31,14 +31,7 @@ $.ajax({
     var csvRow = [];
 
     // get header row and put in data
-    var headers = root.find('table.wikitable th')
-    $.each(headers, function(i) {
-      if (i === 0 || i === 1 || i === 2 || 
-        i === 3 || i === 4 || i === 5) {
-        csvRow.push($(this).find('>:first-child').text());
-      }
-    });
-    dataRow.push(csvRow.join(','));
+    dataRow.push('year,USCensus,PopulationBureau,UN,HYDE,Maddison');
 
     // mine our captured rows for our targeted <td> values 
     $.each(data, function(index) {
