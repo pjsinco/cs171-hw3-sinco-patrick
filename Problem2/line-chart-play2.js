@@ -115,29 +115,29 @@ d3.csv('temps.csv', function(error, data) {
         console.log(color(d.name));
         return color(d.name)
       })
-
-//    city.append("text")
-//      .datum(function(d) { return {name: d.name, value: d.values[d.values.length - 1]}; })
-//      .attr("transform", function(d) { return "translate(" + x(d.value.date) + "," + y(d.value.temperature) + ")"; })
-//      .attr("x", 3)
-//      .attr("dy", ".35em")
-//      .text(function(d) { return d.name; });
-
-
-    city.append('text')
-      .datum(function(d) {
-        return {
-          name: d.name,
-          value: d.values[d.values.length - 1]
-        };
-      })
-      .attr('transform', function(d) {
-        return 'translate(' + x(d.value.date) + ',' + y(d.value.temperature) + ')';
-      })
-      .attr('x', 3)
-      .attr('dy', '0.35em')
-      .text(function(d) {
-        return d.name;
-      })
+//
+////    city.append("text")
+////      .datum(function(d) { return {name: d.name, value: d.values[d.values.length - 1]}; })
+////      .attr("transform", function(d) { return "translate(" + x(d.value.date) + "," + y(d.value.temperature) + ")"; })
+////      .attr("x", 3)
+////      .attr("dy", ".35em")
+////      .text(function(d) { return d.name; });
+//
+//
+//    city.append('text')
+//      .datum(function(d) {
+//        return {
+//          name: d.name,
+//          value: d.values[d.values.length - 1]
+//        };
+//      })
+//      .attr('transform', function(d) {
+//        return 'translate(' + x(d.value.date) + ',' + y(d.value.temperature) + ')';
+//      })
+//      .attr('x', 3)
+//      .attr('dy', '0.35em')
+//      .text(function(d) {
+//        return d.name;
+//      })
 
 }); // end d3.csv()

@@ -100,10 +100,10 @@ var createVis = function() {
 
   var line = d3.svg.line()
     .x(function(d) {
-      return (d.year);
+      return xScale(d.year);
     })
     .y(function(d) {
-      return (d.est);
+      return yScale(d.est);
     })
 
   // put dots on the graph for pop estimates
@@ -123,39 +123,29 @@ var createVis = function() {
       return color(d.agency)
     })
     .style('stroke-width', '1.5px');
+    
 
-//  svg
-//    .selectAll('circle')
-//    .data(data)
-//    .enter()
-//      .append('circle')
-//      .attr('r', 3)
-//      .attr('cx', function(d) {
-//        return xScale(d.year);
-//      })
-//      //http://stackoverflow.com/questions/8312459/
-//      //  iterate-through-object-properties
-//      .attr('cy', function(d, i) {
-//        var est;
-//        for (var agency in d) { // iterate over agency properties
-//          if (d[agency]) { // we have a nonblank value ...
-//            if (agency !== 'date') { // ... and it's not a date
-//              est = yScale(parseInt(d[agency])); // ... plot it
-//            } 
-//          } 
-//        }
-//        return est;
-//      })
-//      .style('fill', function(d, i) {
-//        var col;
-//        for (var agency in d) {
-//          if (agency !== 'year') {
-//            //console.log(agency, color(agency));
-//            col = color(agency);
-//          }
-//        }
-//        return col;
-//      });
+  // iterate through all 5 agencies,
+  // add circle elments classed to name of agency
+  for (var i = 0; i < agencies.length; i++) {
+    //console.log(i);
+    svg
+      .selectAll('.' + agencies[i].agency)
+      .data(agencies[i].values)
+      .enter()
+        .append('circle')
+        .attr('class', agencies[i].agency)
+        .attr('r', 3)
+        .attr('cx', function(d) {
+          return xScale(d.year);
+        })
+        .attr('cy', function(d) {
+          return yScale(d.est);
+        })
+        .style('fill', function(d) {
+          return color(agencies[i].agency);
+        })
+  }
      
   var visFrame = svg.append('g')
     .attr('transform', 'translate(' + bbVis.x + ',' 
@@ -166,26 +156,6 @@ var createVis = function() {
     //.attr('fill', 'cadetblue')
     //.attr('width', 100)
     //.attr('height', 100)
-  // ...
+    // ...
 
-  //return createVis();
-
-//  xScale = d3.scale.linear()
-//    .domain([0, 100])
-//    .range([0, bbVis.w]);
-//
-//
-//  var visFrame = svg.append('g')
-//    .attr('transform', 'translate(' + bbVis.x + ',' + (bbVis.y + bbVis.h) 
-//      + ')')
-//    // ...
-//
-//  visFrame.append('rect')
-//  // ...
-//
-//  var yScale; // define the domain and range; use bbVis
-//  var xAxis; 
-//  var yAxis;
-
-  // add y axis to svg
 } // end createVis()
