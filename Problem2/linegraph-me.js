@@ -17,49 +17,51 @@ var bbVis = {
   h: 200
 }
 
-var dataSet = [];
+var agencies = [];
+var color = d3.scale.category10();
 
 var svg = d3.select('body')
   .append('svg')
-  .attr('width', width + margin.left + margin.right)
   .attr('height', height + margin.top + margin.bottom)
+  .attr('width', width + margin.left + margin.right)
   .append('g')
-  .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
+  .attr('transform', 'translate(' + margin.left + ',' 
+    + margin.right + ')')
 
 d3.csv('population-data.csv', function(data) {
-  //console.log(data); // debug
-  //console.log(data[3].year);// debug
+  color
+    .domain(d3.keys(data[0])
+      .filter(function(key) {
+        return key !== 'year';
+      })
+    );
 
-  var color = d3.scale.category10();
-  color.domain(d3.keys(data[0])
-    .filter(function(key) {
-      return key !== 'year';
-    })
-  );
-
-  // idea from 'var cities = ... ' 
-  // in http://bl.ocks.org/mbostock/3884955
-  var agencies = color.domain().map(function(agency) {
+  agencies = color.domain().map(function(agency) {
     return {
       agency: agency,
       values: data.map(function(d) {
         return {
-          year: d.year,
+          year: parseInt(d.year),
           est: +d[agency] // unary operator to turn string into int
         };
       })
     }
   });
 
-  //console.log(agencies);
+  return createVis();
+});
+
+var createVis = function() {
 
   var xScale = d3.scale.linear()
-    //.domain([0, 100])
-    .domain([0, d3.max(data, function(d) {
-      return parseInt(d.year, 10);
+    .domain([0, d3.max(agencies, function(agency, i) {
+      var max = d3.max(agency.values, function(d) {
+        return d.year; 
+      })
+      return max;
     })])
     .range([0, bbVis.w]);
-
+  
   var yScale = d3.scale.linear()
     // find max value by iterating through all agencies
     // and finding max value in each,
@@ -104,51 +106,70 @@ d3.csv('population-data.csv', function(data) {
       return (d.est);
     })
 
+  // put dots on the graph for pop estimates
+  var agency = svg.selectAll('.agency')
+    .data(agencies)
+    .enter()
+      .append('g')
+      .attr('class', 'agency')
+
+  agency
+    .append('path')
+    .attr('class', 'line')
+    .attr('d', function(d) {
+      return line(d.values);
+    })
+    .style('stroke', function(d) {
+      return color(d.agency)
+    })
+    .style('stroke-width', '1.5px');
+
+//  svg
+//    .selectAll('circle')
+//    .data(data)
+//    .enter()
+//      .append('circle')
+//      .attr('r', 3)
+//      .attr('cx', function(d) {
+//        return xScale(d.year);
+//      })
+//      //http://stackoverflow.com/questions/8312459/
+//      //  iterate-through-object-properties
+//      .attr('cy', function(d, i) {
+//        var est;
+//        for (var agency in d) { // iterate over agency properties
+//          if (d[agency]) { // we have a nonblank value ...
+//            if (agency !== 'date') { // ... and it's not a date
+//              est = yScale(parseInt(d[agency])); // ... plot it
+//            } 
+//          } 
+//        }
+//        return est;
+//      })
+//      .style('fill', function(d, i) {
+//        var col;
+//        for (var agency in d) {
+//          if (agency !== 'year') {
+//            //console.log(agency, color(agency));
+//            col = color(agency);
+//          }
+//        }
+//        return col;
+//      });
+     
   var visFrame = svg.append('g')
     .attr('transform', 'translate(' + bbVis.x + ',' 
       + (bbVis.y + bbVis.h) + ')');
     // ...
 
   visFrame.append('rect')
-    .attr('fill', 'cadetblue')
-    .attr('width', 100)
-    .attr('height', 100)
+    //.attr('fill', 'cadetblue')
+    //.attr('width', 100)
+    //.attr('height', 100)
   // ...
 
-  // put dots on the graph for pop estimates
-  //var agency = svg.selectAll('.agency')
-    //.data(agencies)
-    //.enter()
-      //.append('g')
-      //.attr('class', agency)
-  svg
-    .selectAll('circle')
-    .data(data)
-    .enter()
-      .append('circle')
-      .attr('r', 3)
-      .attr('cx', function(d) {
-        //console.log(d.year);
-        return xScale(d.year);
-      })
-      //http://stackoverflow.com/questions/8312459/
-      //  iterate-through-object-properties
-      .attr('cy', function(d, i) {
-        var est;
-        for (var agency in d) {
-          if (d[agency]) { // we have a nonblank value ...
-            if (agency != 'date') { // ... and it's not a date
-             est = yScale(parseInt(d[agency])); // ... plot it
-            }
-          } 
-        }
-        return est;
-      })
-     
   //return createVis();
-});
 
-var createVis = function() {
 //  xScale = d3.scale.linear()
 //    .domain([0, 100])
 //    .range([0, bbVis.w]);

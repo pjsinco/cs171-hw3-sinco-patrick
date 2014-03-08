@@ -66,7 +66,7 @@ d3.csv('temps.csv', function(error, data) {
       }
     });
 
-  console.log(cities);
+  //console.log(cities);
   
     x.domain(d3.extent(data, function(d) {
       return d.date;
@@ -111,6 +111,8 @@ d3.csv('temps.csv', function(error, data) {
         return line(d.values);
       })
       .style('stroke', function(d) {
+        console.log(color.domain());
+        console.log(color(d.name));
         return color(d.name)
       })
 
