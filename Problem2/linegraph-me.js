@@ -51,12 +51,12 @@ d3.csv('population-data.csv', function(data) {
     }
   });
 
-  console.log(agencies);
+  //console.log(agencies);
 
   var xScale = d3.scale.linear()
     //.domain([0, 100])
-    .domain([0, d3.max(function(d) {
-      return d.year;
+    .domain([0, d3.max(data, function(d) {
+      return parseInt(d.year, 10);
     })])
     .range([0, bbVis.w]);
 
@@ -104,31 +104,47 @@ d3.csv('population-data.csv', function(data) {
       return (d.est);
     })
 
-
-  //var usCensus = [];
-  //data.forEach(function(d) {
-    //usCensus.push(d.USCensus)
-  //});
-
   var visFrame = svg.append('g')
     .attr('transform', 'translate(' + bbVis.x + ',' 
       + (bbVis.y + bbVis.h) + ')');
     // ...
 
-//  var estimates = color.domain().map(function(agency) {
-//    return {
-//      agency: agency,
-//      values: data.map(function(d) {
-//        return {
-//          est: 
-//        }
-//      })
-//    };
-//  });
-
-  visFrame.append('rect');
+  visFrame.append('rect')
+    .attr('fill', 'cadetblue')
+    .attr('width', 100)
+    .attr('height', 100)
   // ...
 
+  // put dots on the graph for pop estimates
+  //var agency = svg.selectAll('.agency')
+    //.data(agencies)
+    //.enter()
+      //.append('g')
+      //.attr('class', agency)
+  svg
+    .selectAll('circle')
+    .data(data)
+    .enter()
+      .append('circle')
+      .attr('r', 3)
+      .attr('cx', function(d) {
+        //console.log(d.year);
+        return xScale(d.year);
+      })
+      //http://stackoverflow.com/questions/8312459/
+      //  iterate-through-object-properties
+      .attr('cy', function(d, i) {
+        var est;
+        for (var agency in d) {
+          if (d[agency]) { // we have a nonblank value ...
+            if (agency != 'date') { // ... and it's not a date
+             est = yScale(parseInt(d[agency])); // ... plot it
+            }
+          } 
+        }
+        return est;
+      })
+     
   //return createVis();
 });
 
