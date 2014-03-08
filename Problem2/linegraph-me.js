@@ -37,6 +37,20 @@ d3.csv('population-data.csv', function(data) {
     })
   );
 
+  // idea from 'var cities = ... ' 
+  // in http://bl.ocks.org/mbostock/3884955
+  var agencies = color.domain().map(function(agency) {
+    return {
+      agency: agency,
+      values: data.map(function(d) {
+        return {
+          year: d.year,
+          est: d[agency]
+        };
+      })
+    }
+  });
+
   var xScale = d3.scale.linear()
     //.domain([0, 100])
     .domain([0, d3.max(function(d) {
@@ -46,7 +60,7 @@ d3.csv('population-data.csv', function(data) {
 
   var yScale = d3.scale.linear()
     .domain([0, d3.max(data, function(d) {
-      return d.HYDE; // TODO iterate through values
+      return d.HYDE; // TODO iterate through all values
     })])
     .range([bbVis.h, 0]);
 
@@ -81,10 +95,11 @@ d3.csv('population-data.csv', function(data) {
       return (d.est);
     })
 
-  var usCensus = [];
-  data.forEach(function(d) {
-    usCensus.push(d.USCensus)
-  });
+
+  //var usCensus = [];
+  //data.forEach(function(d) {
+    //usCensus.push(d.USCensus)
+  //});
 
   var visFrame = svg.append('g')
     .attr('transform', 'translate(' + bbVis.x + ',' 

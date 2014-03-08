@@ -65,6 +65,8 @@ d3.csv('temps.csv', function(error, data) {
         })
       }
     });
+
+  console.log(cities);
   
     x.domain(d3.extent(data, function(d) {
       return d.date;
