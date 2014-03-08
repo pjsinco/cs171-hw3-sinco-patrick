@@ -36,6 +36,7 @@ d3.csv('population-data.csv', function(data) {
       })
     );
 
+  // make the data into something we can work with
   agencies = color.domain().map(function(agency) {
     return {
       agency: agency,
@@ -47,6 +48,21 @@ d3.csv('population-data.csv', function(data) {
       })
     }
   });
+
+  // add a property to each agency indicating 
+  // the index of the first year with data
+  agencies.forEach(function(agency) {
+    var indexCounter = 0;
+    while (indexCounter < agency.values.length) {
+      if (agency.values[indexCounter].est !== 0) {
+        agency.firstYearIndex = indexCounter;
+        break;
+      }
+      indexCounter++;
+    }
+  })
+
+  console.log(agencies);
 
   // fill in missing data with interpolations
   agencies.forEach(function(agency) {
@@ -141,14 +157,6 @@ var createVis = function() {
     .y(function(d) {
       return yScale(d.est);
     })
-//    .defined(function(d) {
-//      if (d.est) {
-//        return d.est;
-//      } 
-//    })
-
-  //console.log(line.defined());
-
 
   // put dots on the graph for pop estimates
   var agency = svg.selectAll('.agency')
@@ -157,31 +165,13 @@ var createVis = function() {
       .append('g')
       .attr('class', 'agency')
 
-  
-
   agency
     .append('path')
     .attr('class', 'line')
     .attr('d', function(d, i) {
-      //console.log(d.values, i);
-      //for (var i = 0; i < d.values.length; i++) {
-      //  if (d.values[i].est !== 0) {
-      //    return line(d.values)
-      //  }
-      //  //console.log(d.values[i].est);
-      //}
-      //console.log(d.values.length);
-      //var firstYearWithData;
-      //var c = 0;
-      //while (c < d.values.length) {
-        //if (d.values[c].year !== 0) {
-          //firstYearWithData = d.values[c].year;
-          //break;
-        //}
-        //c++;
-      //}
-      
-      return line(d.values);
+      if (i >= d.firstYearIndex) {
+        return line(d.values);
+      }
     })
     .style('stroke', function(d) {
       return color(d.agency)
@@ -192,7 +182,6 @@ var createVis = function() {
   // iterate through all 5 agencies,
   // add circle elments classed to name of agency
   for (var i = 0; i < agencies.length; i++) {
-    //console.log(i);
     svg
       .selectAll('.' + agencies[i].agency)
       .data(agencies[i].values)
