@@ -116,7 +116,25 @@ var createVis = function() {
   agency
     .append('path')
     .attr('class', 'line')
-    .attr('d', function(d) {
+    .attr('d', function(d, i) {
+      //console.log(d.values, i);
+      //for (var i = 0; i < d.values.length; i++) {
+      //  if (d.values[i].est !== 0) {
+      //    return line(d.values)
+      //  }
+      //  //console.log(d.values[i].est);
+      //}
+      //console.log(d.values.length);
+      //var firstYearWithData;
+      //var c = 0;
+      //while (c < d.values.length) {
+        //if (d.values[c].year !== 0) {
+          //firstYearWithData = d.values[c].year;
+          //break;
+        //}
+        //c++;
+      //}
+      
       return line(d.values);
     })
     .style('stroke', function(d) {
@@ -135,7 +153,13 @@ var createVis = function() {
       .enter()
         .append('circle')
         .attr('class', agencies[i].agency)
-        .attr('r', 3)
+        .attr('r', function(d) {
+          // hide circles whose bound estimate is 0
+          if (d.est) { 
+            return 2;  
+          }
+          //console.log(d.est);
+        })
         .attr('cx', function(d) {
           return xScale(d.year);
         })
