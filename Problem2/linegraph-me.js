@@ -8,13 +8,13 @@ var margin = {
 };
 
 var width = 960 - margin.left - margin.right;
-var height = 300 - margin.bottom - margin.top;
+var height = 600 - margin.bottom - margin.top;
 
 var bbVis = {
   x: 100,
   y: 10,
   w: width - 100,
-  h: 200
+  h: 500
 }
 
 var agencies = [];
@@ -47,6 +47,42 @@ d3.csv('population-data.csv', function(data) {
       })
     }
   });
+
+  // fill in missing data with interpolations
+  agencies.forEach(function(agency) {
+
+    // find first year with nonzero data
+    var c = 0;
+    var firstYearWithData;
+    while (c < agency.values.length) {
+      if (agency.values[c].est !== 0) {
+        firstYearWithData = agency.values[c].year;
+        break;
+      }
+      c++;
+    }
+
+    var years = []; 
+    var estimates = [];
+    for (var i = c; i < agency.values.length; i++) {
+      if (agency.values[i].est) {
+        years.push(agency.values[i].year);
+        estimates.push(agency.values[i].est);
+      }
+    }
+  
+    var interp = d3.scale.linear()
+      .domain(years)
+      .range(estimates)
+    
+    // interpolate estimate if it's 0
+    for (var i = c; i < agency.values.length; i++) {
+      if (agency.values[i].est === 0) {
+        agency.values[i].est = interp(agency.values[i].year);
+      }
+    }
+
+  }); // end agencies.forEach()
 
   return createVis();
 });
@@ -105,6 +141,14 @@ var createVis = function() {
     .y(function(d) {
       return yScale(d.est);
     })
+//    .defined(function(d) {
+//      if (d.est) {
+//        return d.est;
+//      } 
+//    })
+
+  //console.log(line.defined());
+
 
   // put dots on the graph for pop estimates
   var agency = svg.selectAll('.agency')
@@ -112,6 +156,8 @@ var createVis = function() {
     .enter()
       .append('g')
       .attr('class', 'agency')
+
+  
 
   agency
     .append('path')
