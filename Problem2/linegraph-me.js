@@ -7,7 +7,7 @@ var margin = {
   left: 50
 };
 
-var width = 960 - margin.left - margin.right;
+var width = 1200 - margin.left - margin.right;
 var height = 600 - margin.bottom - margin.top;
 
 var bbVis = {
@@ -43,7 +43,8 @@ d3.csv('population-data.csv', function(data) {
       values: data.map(function(d) {
         return {
           year: parseInt(d.year),
-          est: +d[agency] // unary operator to turn string into int
+          est: +d[agency], // unary operator to turn string into int
+          interp: false
         };
       })
     }
@@ -61,8 +62,6 @@ d3.csv('population-data.csv', function(data) {
       indexCounter++;
     }
   })
-
-  console.log(agencies);
 
   // fill in missing data with interpolations
   agencies.forEach(function(agency) {
@@ -95,6 +94,7 @@ d3.csv('population-data.csv', function(data) {
     for (var i = c; i < agency.values.length; i++) {
       if (agency.values[i].est === 0) {
         agency.values[i].est = interp(agency.values[i].year);
+        agency.values[i].interp = true;
       }
     }
 
@@ -104,6 +104,8 @@ d3.csv('population-data.csv', function(data) {
 });
 
 var createVis = function() {
+
+  console.log(agencies);
 
   var xScale = d3.scale.linear()
     // find max value by iterating through all agencies
@@ -194,7 +196,6 @@ var createVis = function() {
           if (d.est) { 
             return 2;  
           }
-          //console.log(d.est);
         })
         .attr('cx', function(d) {
           return xScale(d.year);
@@ -203,7 +204,12 @@ var createVis = function() {
           return yScale(d.est);
         })
         .style('fill', function(d) {
-          return color(agencies[i].agency);
+          // interpolated values are fuchsia
+          if (d.interp) {
+            return 'fuchsia';
+          } else {
+            return color(agencies[i].agency);
+          }
         })
   }
      
