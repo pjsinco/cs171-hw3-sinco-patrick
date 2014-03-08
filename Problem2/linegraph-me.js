@@ -45,7 +45,7 @@ d3.csv('population-data.csv', function(data) {
       values: data.map(function(d) {
         return {
           year: d.year,
-          est: +d[agency]
+          est: +d[agency] // unary operator to turn string into int
         };
       })
     }
@@ -61,8 +61,15 @@ d3.csv('population-data.csv', function(data) {
     .range([0, bbVis.w]);
 
   var yScale = d3.scale.linear()
-    .domain([0, d3.max(data, function(d) {
-      return d.HYDE; // TODO iterate through all values
+    // find max value by iterating through all agencies
+    // and finding max value in each,
+    // then find max value of all the maxes;
+    // the key: nested d3.max()
+    .domain([0, d3.max(agencies, function(agency, i) {
+      var max = d3.max(agency.values, function(d) {
+        return d.est; 
+      })
+      return max;
     })])
     .range([bbVis.h, 0]);
 
