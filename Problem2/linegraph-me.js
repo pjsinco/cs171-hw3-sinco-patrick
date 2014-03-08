@@ -106,6 +106,10 @@ d3.csv('population-data.csv', function(data) {
 var createVis = function() {
 
   var xScale = d3.scale.linear()
+    // find max value by iterating through all agencies
+    // and finding max value in each,
+    // then find max value of all the maxes;
+    // the key: nested d3.max()
     .domain([0, d3.max(agencies, function(agency, i) {
       var max = d3.max(agency.values, function(d) {
         return d.year; 
@@ -115,10 +119,7 @@ var createVis = function() {
     .range([0, bbVis.w]);
   
   var yScale = d3.scale.linear()
-    // find max value by iterating through all agencies
-    // and finding max value in each,
-    // then find max value of all the maxes;
-    // the key: nested d3.max()
+    // same nested max() process as above
     .domain([0, d3.max(agencies, function(agency, i) {
       var max = d3.max(agency.values, function(d) {
         return d.est; 
