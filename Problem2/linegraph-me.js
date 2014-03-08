@@ -45,11 +45,13 @@ d3.csv('population-data.csv', function(data) {
       values: data.map(function(d) {
         return {
           year: d.year,
-          est: d[agency]
+          est: +d[agency]
         };
       })
     }
   });
+
+  console.log(agencies);
 
   var xScale = d3.scale.linear()
     //.domain([0, 100])
