@@ -116,6 +116,7 @@ d3.csv('population-data.csv', function(data) {
 
   }); // end agencies.forEach()
 
+  // initialize yearlyEst[] with all the years
   agencies[0].values.forEach(function(vals) {
     yearlyEst.push({year: vals.year});
   });
