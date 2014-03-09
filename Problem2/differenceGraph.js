@@ -121,13 +121,35 @@ d3.csv('population-data.csv', function(data) {
     yearlyEst.push({year: vals.year});
   });
 
-  agencies.forEach(function(agency) {
-    var allEsts = [];
-    agency.values.forEach(function(stats) {
-      allEsts.push(stats.est);
-    });
-    var yearMin = d3.min(allEsts)
+  data.forEach(function(y) {
+    y.year = +y.year;
+    var est = [];
+    for (var key in y) {
+      if (y[key]) {
+        y[key] = parseInt(y[key]);
+      } else {
+        y[key] = 0;
+      }
+      if (key !== 'year' && y[key] !== 0) {
+        est.push(y[key]);
+      }
+    }
+    y.high = d3.min(est);
+    y.low = d3.max(est);
+    
+    //y.min = d3.min(y, function(d) {
+      //console.log(d);
+    //})
   })
+
+  console.log(data);
+//  agencies.forEach(function(agency) {
+//    var allEsts = [];
+//    agency.values.forEach(function(stats) {
+//      allEsts.push(stats.est);
+//    });
+//    var yearMin = d3.min(allEsts)
+//  })
       
   return createVis();
 });
