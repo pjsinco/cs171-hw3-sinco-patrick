@@ -9,6 +9,7 @@ var margin = {
 
 var width = 1200 - margin.left - margin.right;
 var height = 600 - margin.bottom - margin.top;
+var padding = 40;
 
 var bbVis = {
   x: 100,
@@ -118,7 +119,7 @@ var createVis = function() {
       })
       return max;
     })])
-    .range([0, bbVis.w]);
+    .range([padding, bbVis.w]);
   
   var yScale = d3.scale.linear()
     // same nested max() process as above
@@ -133,18 +134,24 @@ var createVis = function() {
   var xAxis = d3.svg.axis()
     .scale(xScale)
     .orient('bottom')
+    .ticks(20)
+    .tickFormat(d3.format('d'))
 
   var yAxis = d3.svg.axis()
     .scale(yScale)
-    .ticks(5)
+    .ticks(10)
     .orient('left')
 
   // place x-axis
   svg
     .append('g')
     .attr('class', 'x axis')
-    .attr('transform', 'translate(40,' + bbVis.h + ')')
+    .attr('transform', 'translate(0,' + bbVis.h + ')')
     .call(xAxis)  
+    .append('text')
+      .attr('text-anchor', 'end')
+      .text('Year')
+      .attr('transform', 'translate(' + bbVis.w + ',-5)')
 
   // place y-axis
   svg
@@ -152,6 +159,12 @@ var createVis = function() {
     .attr('class', 'y axis')
     .attr('transform', 'translate(40, 0)')
     .call(yAxis)
+    .append('text')
+      .attr('transform', 'rotate(-90)')
+      .attr('y', 6)
+      .attr('dy', '0.71em')
+      .attr('text-anchor', 'end')
+      .text('Population')
 
   var line = d3.svg.line()
     .x(function(d) {
