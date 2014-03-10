@@ -17,24 +17,32 @@ var bbVis = {
   h: 500
 }
 
-var agencies = [];
-var color = d3.scale.category10();
-var yearlyEst = 
-[
-  {  
-    year: null,
-    stats: 
-    {
-      mean: null,
-      min: null,
-      max: null,
-      range: null
-    }
-  }
-];
+var years = [];
 
-//yearlyEst[0].year = 0;
-//yearlyEst.push({year: 0, stats: {
+var xScale = d3.scale.linear()
+  .range([0, width]);
+
+var yScale = d3.scale.linear()
+  .range([height, 0]);
+
+var xAxis = d3.svg.axis()
+  .scale(xScale)
+  .orient('bottom');
+
+var yAxis = d3.svg.axis()
+  .scale(yScale)
+  .orient('left');
+
+var area = d3.svg.area()
+  .x(function(d) {
+    return xScale(d.year);
+  })
+  .y0(function(d) {
+    return yScale(d.low);
+  })
+  .y1(function(d) {
+    return yScale(d.high);
+  });
 
 var svg = d3.select('body')
   .append('svg')
@@ -45,82 +53,6 @@ var svg = d3.select('body')
     + margin.right + ')')
 
 d3.csv('population-data.csv', function(data) {
-  color
-    .domain(d3.keys(data[0])
-      .filter(function(key) {
-        return key !== 'year';
-      })
-    );
-
-  // make the data into something we can work with
-  agencies = color.domain().map(function(agency) {
-    return {
-      agency: agency,
-      values: data.map(function(d) {
-        return {
-          year: parseInt(d.year),
-          est: +d[agency], // unary operator to turn string into int
-          interp: false
-        };
-      })
-    }
-  });
-
-  // add a property to each agency indicating 
-  // the index of the first year with data
-  agencies.forEach(function(agency) {
-    var indexCounter = 0;
-    while (indexCounter < agency.values.length) {
-      if (agency.values[indexCounter].est !== 0) {
-        agency.firstYearIndex = indexCounter;
-        break;
-      }
-      indexCounter++;
-    }
-  })
-
-  // fill in missing data with interpolations
-  agencies.forEach(function(agency) {
-
-    // find first year with nonzero data
-    var c = 0;
-    var firstYearWithData;
-    while (c < agency.values.length) {
-      if (agency.values[c].est !== 0) {
-        firstYearWithData = agency.values[c].year;
-        break;
-      }
-      c++;
-    }
-
-    var years = []; 
-    var estimates = [];
-    for (var i = c; i < agency.values.length; i++) {
-      if (agency.values[i].est) {
-        years.push(agency.values[i].year);
-        estimates.push(agency.values[i].est);
-      }
-    }
-  
-    var interp = d3.scale.linear()
-      .domain(years)
-      .range(estimates)
-    
-    // interpolate estimate if it's 0
-    for (var i = c; i < agency.values.length; i++) {
-      if (agency.values[i].est === 0) {
-        agency.values[i].est = interp(agency.values[i].year);
-        agency.values[i].interp = true;
-      }
-    }
-
-  }); // end agencies.forEach()
-
-  // initialize yearlyEst[] with all the years
-  agencies[0].values.forEach(function(vals) {
-    yearlyEst.push({year: vals.year});
-  });
-
   data.forEach(function(y) {
     y.year = +y.year;
     var est = [];
@@ -136,26 +68,41 @@ d3.csv('population-data.csv', function(data) {
     }
     y.high = d3.min(est);
     y.low = d3.max(est);
-    
-    //y.min = d3.min(y, function(d) {
-      //console.log(d);
-    //})
   })
 
-  console.log(data);
-//  agencies.forEach(function(agency) {
-//    var allEsts = [];
-//    agency.values.forEach(function(stats) {
-//      allEsts.push(stats.est);
-//    });
-//    var yearMin = d3.min(allEsts)
-//  })
+  years = data;
+
       
   return createVis();
 });
 
 var createVis = function() {
-  //console.log(agencies);
+  //console.log(years);
+
+  var y = years.map(function(d) {
+    return d.year;
+  })
+  console.log(y);
+
+  xScale
+    .domain(
+      d3.extent(years.map(function(d) {
+        return d.year; 
+      }))
+    );
+
+  yScale
+    .domain(
+      [
+        d3.min(years.map(function(d) {
+          return d.low;
+        })), 
+        d3.max(years.map(function(d) {
+          return d.high;
+        }))
+      ]
+    );
+  
 
 
 
