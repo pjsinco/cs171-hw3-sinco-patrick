@@ -20,10 +20,10 @@ var bbVis = {
 var years = [];
 
 var xScale = d3.scale.linear()
-  .range([0, width]);
+  .range([0, bbVis.w]);
 
 var yScale = d3.scale.linear()
-  .range([height, 0]);
+  .range([bbVis.h, 0]);
 
 var xAxis = d3.svg.axis()
   .scale(xScale)
@@ -57,11 +57,8 @@ d3.csv('population-data.csv', function(data) {
     y.year = +y.year;
     var est = [];
     for (var key in y) {
-      if (y[key]) {
-        y[key] = parseInt(y[key]);
-      } else {
-        y[key] = 0;
-      }
+      y[key] = (y[key]) ? parseInt(y[key]) : 0;
+
       if (key !== 'year' && y[key] !== 0) {
         est.push(y[key]);
       }
@@ -77,7 +74,7 @@ d3.csv('population-data.csv', function(data) {
 });
 
 var createVis = function() {
-  //console.log(years);
+  console.log(years);
 
   var y = years.map(function(d) {
     return d.year;
@@ -102,20 +99,25 @@ var createVis = function() {
         }))
       ]
     );
-  
+
+  svg
+    .append('g')
+    .attr('class', 'x axis')
+    .attr('transform', 'translate(40,' + bbVis.h + ')')
+    .call(xAxis)
+
+  svg
+    .append('g')
+    .attr('class', 'y axis')
+    .attr('transform', 'translate(40, 0)')
+    .call(yAxis)
+
+  svg
+    .append('path')
+    .datum(years)
+    .attr('class', 'area')
+    .attr('d', area)
 
 
-
-
-  var visFrame = svg.append('g')
-    .attr('transform', 'translate(' + bbVis.x + ',' 
-      + (bbVis.y + bbVis.h) + ')');
-    // ...
-
-  visFrame.append('rect')
-    //.attr('fill', 'cadetblue')
-    //.attr('width', 100)
-    //.attr('height', 100)
-    // ...
 
 } // end createVis()
