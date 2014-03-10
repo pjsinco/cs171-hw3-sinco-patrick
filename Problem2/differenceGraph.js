@@ -229,7 +229,7 @@ var createVis = function() {
         .attr('r', function(d) {
           // hide circles whose bound estimate is 0
           if (d.est) { 
-            return 5;  
+            return 3;  
           }
         })
         .attr('cx', function(d) {
@@ -241,7 +241,7 @@ var createVis = function() {
         .style('fill', function(d) {
           // interpolated values are fuchsia
           if (d.interp) {
-            return 'fuchsia';
+            return '#f5f5f5';
           } else {
             return color(agencies[i].agency);
           }
