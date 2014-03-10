@@ -19,6 +19,7 @@ var bbVis = {
 }
 
 var agencies = [];
+var yearStats = [];
 var color = d3.scale.category10();
 
 
@@ -31,14 +32,15 @@ var yScale = d3.scale.linear()
 var xAxis = d3.svg.axis()
   .scale(xScale)
   .orient('bottom')
-  .ticks(6)
+  .tickFormat(d3.format('d'))
+  .ticks(20)
 
 
 var yAxis = d3.svg.axis()
   .scale(yScale)
-  .tickFormat(d3.format('d'))
-  .ticks(20)
-  .orient('left');
+  .ticks(6)
+  .orient('left')
+  .tickFormat(d3.format('.2s'));
 
 var svg = d3.select('body')
   .append('svg')
@@ -48,7 +50,50 @@ var svg = d3.select('body')
   .attr('transform', 'translate(' + margin.left + ',' 
     + margin.right + ')')
 
+var line = d3.svg.line()
+  .x(function(d) {
+    return xScale(d.year);
+  })
+  .y(function(d) {
+    return yScale(d.mean);
+  })
+
 d3.csv('population-data.csv', function(data) {
+  var keys = [];
+  data.forEach(function(y) {
+    keys = d3.keys(y).filter(function(d) {
+      return d !== 'year';
+    })
+  })
+
+  // generate year-by-year descriptive stats
+  data.forEach(function(y) {
+    var vals = [];
+    keys.forEach(function(key) {
+      vals.push(parseInt(y[key]))
+    })
+    var yearMin = d3.min(vals)
+    var yearMax = d3.max(vals)
+    var yearMean = d3.mean(vals);
+    yearStats.push(
+      {
+        year: +y.year,
+        low: yearMin,
+        high: yearMax,
+        mean: yearMean,
+      }
+    );
+  });
+
+  console.log(yearStats);
+
+  console.log(yearStats);
+  keys.forEach(function(key) {
+    var vals = [];
+    
+  });
+
+  // only use dates divisible by 100
   data = data.filter(function(d) {
     return parseInt(d.year) % 100 === 0;
   })
@@ -107,6 +152,7 @@ d3.csv('population-data.csv', function(data) {
     var years = []; 
     var estimates = [];
     for (var i = c; i < agency.values.length; i++) {
+      // if we have an estimate, add the est and year to 
       if (agency.values[i].est) {
         years.push(agency.values[i].year);
         estimates.push(agency.values[i].est);
@@ -136,7 +182,7 @@ var createVis = function() {
   xScale
     .domain([0, d3.max(agencies, function(agency, i) {
       var max = d3.max(agency.values, function(d) {
-        return d.est; 
+        return d.year; 
       })
       return max;
     })])
@@ -144,7 +190,7 @@ var createVis = function() {
   yScale
     .domain([0, d3.max(agencies, function(agency, i) {
       var max = d3.max(agency.values, function(d) {
-        return d.year; 
+        return d.est; 
       })
       return max;
     })])
@@ -160,6 +206,16 @@ var createVis = function() {
     .attr('class', 'y axis')
     .attr('transform', 'translate(40, 0)')
     .call(yAxis)
+
+  svg
+    .append('path')
+    .datum(yearStats)
+    .attr('class', 'line')
+    .attr('d', line)
+    .style('fill', 'none')
+    .style('stroke', '#eee')
+    .style('stroke-width', 3)
+
 
   // iterate through all 5 agencies,
   // add circle elments classed to name of agency
@@ -177,10 +233,10 @@ var createVis = function() {
           }
         })
         .attr('cx', function(d) {
-          return xScale(d.est);
+          return xScale(d.year);
         })
         .attr('cy', function(d) {
-          return yScale(d.year);
+          return yScale(d.est);
         })
         .style('fill', function(d) {
           // interpolated values are fuchsia
