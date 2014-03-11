@@ -35,9 +35,7 @@ var dataset = [];
 //  h: 300
 //}
 
-var parseDate = d3.time.format('%B %Y').parse
-
-var color = d3.scale.category10();
+var parseDate = d3.time.format('%b-%y').parse
 
 var xScale = d3.time.scale()
   .range([0, width]);
@@ -72,7 +70,7 @@ var line = d3.svg.line()
     return xScale2(d.date);
   })
   .y(function(d) {
-    return yScale2(d.count);
+    return yScale2(d.women);
   })
 
 var svg = d3.select('body')
@@ -90,43 +88,27 @@ var context = svg.append('g')
   .attr('transform', 'translate(' + margin2.left + ',' 
     + margin2.top + ')');
 
-d3.csv('unHealth.csv', function(error, data) {
-  // define color domain to be the categories
-  color
-    .domain(d3.keys(data[0]).filter(function(d) {
-      return d !== 'date';
-    }));
+d3.csv('unHealth-women.csv', function(error, data) {
+  data.forEach(function(d) {
+    d.date = parseDate(d.date);
+    d.women = +d.women;
+  });
+
+  dataset = data;
 
   // define xScale's domain now because we want to use 
   // the data before we reformat it
   xScale
     .domain(d3.extent(data, function(d) {
-      return parseDate(d.date); 
+      return d.date; 
     }));
 
-  dataset = color.domain().map(function(cat) {
-    return {
-      cat: cat,
-      values: data.map(function(d) {
-        return {
-          date: parseDate(d.date),
-          count: +d[cat]
-        };
-      })
-    } 
-  });
+  console.log(data);
 
-  yScale.domain([
-    d3.min(dataset, function(c) {
-      return d3.min(c.values, function(v) {
-        return v.count;
-      });
-    }),
-    d3.max(dataset, function(c) {
-      return d3.max(c.values, function(v) {
-        return v.count;
-      });
-    })]);
+  yScale
+    .domain(d3.extent(data.map(function(d) {
+      return d.women;
+    })));
 
   xScale2
     .domain(xScale.domain());
@@ -157,23 +139,10 @@ function createVis() {
     .attr('transform', 'translate(0,' + height2 + ')')
     .call(xAxis2)
     
-  var categ = context.selectAll('.category')
-    .data(dataset)
-    .enter()
-      .append('g')
-      .attr('class', 'category')
-  
-  // append a path to each of our 3 categories
-  categ
+  context
+    .datum(dataset)
     .append('path')
     .attr('class', 'path')
-    .attr('d', function(d) {
-      return line(d.values);
-    })
-    .style('stroke', function(d) {
-      return color(d.cat);
-    })
-
-}
+    .attr('d', line)
 
 }; // end createVis()
