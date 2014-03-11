@@ -2,17 +2,17 @@ var margin = {
   top    : 10,
   right  : 10,
   bottom : 100,
-  left   : 40,
+  left   : 40
 }
 var margin2 = {
   top    : 430,
   right  : 10,
   bottom : 20,
-  left   : 40,
+  left   : 40
 }
-var width = 960 - margin.left - margin.right;
-var height = 500 - margin.top - margin.bottom;
-var height2 = 500 - margin2.top - margin2.bottom;
+var width = 960 - margin.left - margin.right; // 910
+var height = 500 - margin.top - margin.bottom; // 390
+var height2 = 500 - margin2.top - margin2.bottom; // 50
 
 var parseDate = d3.time.format('%b %Y').parse;
 
