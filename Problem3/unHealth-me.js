@@ -8,6 +8,7 @@ var margin = {
 var width = 960 - margin.left - margin.right;
 var height = 800 - margin.top - margin.top;
 var padding = 50;
+var dataset = [];
 
 var bbOverview = {
   x: 0,
@@ -69,19 +70,23 @@ svg
   .attr('transform', 'translate(' + margin.left + ',' 
     + margin.top + ')');
 
+
 d3.csv('unHealth.csv', function(error, data) {
-  // set color domain
+  // define color domain to be the categories
   color
     .domain(d3.keys(data[0]).filter(function(d) {
       return d !== 'date';
     }));
 
+  // define xScale's domain now because we want to use 
+  // the data before we reformat it
   xScale
     .domain(d3.extent(data, function(d) {
       return parseDate(d.date); 
     }));
-
-  var dataset = color.domain().map(function(cat) {
+ 
+  // reformat the data to make it easier to use
+  dataset = color.domain().map(function(cat) {
     return {
       cat: cat,
       values: data.map(function(d) {
@@ -93,8 +98,14 @@ d3.csv('unHealth.csv', function(error, data) {
     } 
   });
 
+  createVis();
+}); // end d3.csv();
+
+function createVis() {
+
   console.log(dataset);
 
+  // define yScale's domain
   yScale.domain([
     d3.min(dataset, function(c) {
       return d3.min(c.values, function(v) {
@@ -107,24 +118,28 @@ d3.csv('unHealth.csv', function(error, data) {
       });
     })]);
 
+  // set up X axis
   svg
     .append('g')
     .attr('class', 'x axis')
     .attr('transform', 'translate(0,' + bbDetail.h + ')')
     .call(xAxis);
 
+  // set up Y axis
   svg
     .append('g')
     .attr('class', 'y axis')
     .attr('transform', 'translate(' + padding + ',0)')
     .call(yAxis)
 
+  // prep for adding 3 lines, one for each category
   var categ = svg.selectAll('.category')
     .data(dataset)
     .enter()
       .append('g')
       .attr('class', 'category')
   
+  // append a path to each of our 3 categories
   categ
     .append('path')
     .attr('class', 'path')
@@ -135,5 +150,5 @@ d3.csv('unHealth.csv', function(error, data) {
       return color(d.cat);
     })
 
-}); // end d3.csv();
 
+}; // end createVis()
