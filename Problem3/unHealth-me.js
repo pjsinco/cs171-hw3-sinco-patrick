@@ -7,6 +7,7 @@ var margin = {
 
 var width = 960 - margin.left - margin.right;
 var height = 800 - margin.top - margin.top;
+var padding = 50;
 
 var bbOverview = {
   x: 0,
@@ -27,13 +28,13 @@ var parseDate = d3.time.format('%B %Y').parse
 var color = d3.scale.category10();
 
 var xScale = d3.time.scale()
-  .range([0, width])
+  .range([padding, bbDetail.w])
 
 //var xScale2 = d3.time.scale()
   //.range([0, width])
 
 var yScale = d3.scale.linear()
-  .range([height, 0])
+  .range([bbDetail.h, 0])
 
 //var yScale2 = d3.scale.linear()
   //.range([bbOverview.h, 0])
@@ -109,12 +110,13 @@ d3.csv('unHealth.csv', function(error, data) {
   svg
     .append('g')
     .attr('class', 'x axis')
-    .attr('transform', 'translate(0,' + height + ')')
+    .attr('transform', 'translate(0,' + bbDetail.h + ')')
     .call(xAxis);
 
   svg
     .append('g')
     .attr('class', 'y axis')
+    .attr('transform', 'translate(' + padding + ',0)')
     .call(yAxis)
 
   var categ = svg.selectAll('.category')
