@@ -68,8 +68,6 @@ svg
   .attr('transform', 'translate(' + margin.left + ',' 
     + margin.top + ')');
 
-var dataset = [];
-  
 d3.csv('unHealth.csv', function(error, data) {
   // set color domain
   color
@@ -82,17 +80,19 @@ d3.csv('unHealth.csv', function(error, data) {
       return parseDate(d.date); 
     }));
 
-  dataset = color.domain().map(function(cat) {
+  var dataset = color.domain().map(function(cat) {
     return {
       cat: cat,
       values: data.map(function(d) {
         return {
-          year: parseDate(d.date),
+          date: parseDate(d.date),
           count: +d[cat]
         };
       })
     } 
   });
+
+  console.log(dataset);
 
   yScale.domain([
     d3.min(dataset, function(c) {
@@ -106,6 +106,32 @@ d3.csv('unHealth.csv', function(error, data) {
       });
     })]);
 
+  svg
+    .append('g')
+    .attr('class', 'x axis')
+    .attr('transform', 'translate(0,' + height + ')')
+    .call(xAxis);
+
+  svg
+    .append('g')
+    .attr('class', 'y axis')
+    .call(yAxis)
+
+  var categ = svg.selectAll('.category')
+    .data(dataset)
+    .enter()
+      .append('g')
+      .attr('class', 'category')
+  
+  categ
+    .append('path')
+    .attr('class', 'path')
+    .attr('d', function(d) {
+      return line(d.values);
+    })
+    .style('stroke', function(d) {
+      return color(d.cat);
+    })
 
 }); // end d3.csv();
 
