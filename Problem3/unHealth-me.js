@@ -107,13 +107,14 @@ var svg = d3.select('body')
   .attr('height', height + margin.top + margin.bottom) // 
   .attr('width', width + margin.left + margin.right)
 
-//svg
-  //.append('defs')
-  //.append('clipPath')
-    //.attr('id', 'clip')
-  //.append('rect')
-    //.attr('width', width - padding)
-    //.attr('height', height)
+svg
+  .append('defs')
+  .append('clipPath')
+    .attr('id', 'clip')
+  .append('rect')
+    .attr('width', width - padding)
+    .attr('height', height)
+    .attr('transform', 'translate(' + padding + ',0)');
 
 var focus = svg.append('g')
   .attr('class', 'focus')
@@ -228,9 +229,6 @@ function createVis() {
     .call(brush)
     .selectAll('rect')
     .attr('height', height2)
-    //.attr('transform', 'translate(20, 100)')
-      //.attr('y', -6)
-      //.attr('height', height2 + 7)
   
 }; // end createVis()
 
@@ -245,5 +243,10 @@ function brushed() {
   focus
     .select('.x.axis')
     .call(xAxisFocus);
-    
+
+  focus
+    .selectAll('circle')
+    .attr('cx', function(d) {
+      return xScaleFocus(d.date);
+    })
 }
