@@ -1,23 +1,23 @@
-var margin = {
+var marginContext = {
   //top: 50,
   //right: 50,
   //bottom: 50,
   //left: 50
   top    : 10,
   right  : 10,
-  bottom : 100,
+  bottom : 430,
   left   : 40
 };
 
-var margin2 = {
-  top    : 430,
+var marginFocus = {
+  top    : 100,
   right  : 10,
   bottom : 20,
   left   : 40
 }
-var width = 960 - margin.left - margin.right; // 910
-var height = 500 - margin.top - margin.bottom; // 390
-var height2 = 500 - margin2.top - margin2.bottom; // 50
+var width = 960 - marginFocus.left - marginFocus.right; // 910
+var heightFocus = 500 - marginFocus.top - marginFocus.bottom; // 390
+var heightContext = 500 - marginContext.top - marginContext.bottom; // 50
 var padding = 30;
 var dataset = [];
 
@@ -44,13 +44,13 @@ var xScaleFocus = d3.time.scale()
   .range([padding, width]);
 
 var yScaleFocus = d3.scale.linear()
-  .range([height, 0]);
+  .range([heightFocus, 0]);
 
 var xScaleContext = d3.time.scale()
   .range([padding, width]);
 
 var yScaleContext = d3.scale.linear()
-  .range([height2, 0]);
+  .range([heightContext, 0]);
 
 /*
  * Set up axes
@@ -79,7 +79,7 @@ var areaFocus = d3.svg.area()
   .x(function(d) {
     return xScaleFocus(d.date);
   })
-  .y0(height)
+  .y0(heightFocus)
   .y1(function(d) {
     return yScaleFocus(d.women);
   })
@@ -104,8 +104,8 @@ var brush = d3.svg.brush()
 
 var svg = d3.select('body')
   .append('svg')
-  .attr('height', height + margin.top + margin.bottom) // 
-  .attr('width', width + margin.left + margin.right)
+  .attr('height', heightFocus + marginFocus.top + marginFocus.bottom) // 
+  .attr('width', width + marginFocus.left + marginFocus.right)
 
 svg
   .append('defs')
@@ -113,18 +113,18 @@ svg
     .attr('id', 'clip')
   .append('rect')
     .attr('width', width - padding)
-    .attr('height', height)
+    .attr('height', heightFocus)
     .attr('transform', 'translate(' + padding + ',0)');
 
 var focus = svg.append('g')
   .attr('class', 'focus')
-  .attr('transform', 'translate(' + margin.left + ',' 
-    + margin.top + ')');
+  .attr('transform', 'translate(' + marginFocus.left + ',' 
+    + marginFocus.top + ')');
 
 var context = svg.append('g')
   .attr('class', 'context')
-  .attr('transform', 'translate(' + margin2.left + ',' 
-    + margin2.top + ')');
+  .attr('transform', 'translate(' + marginContext.left + ',' 
+    + marginContext.top + ')');
 
 d3.csv('unHealth-women.csv', function(error, data) {
   data.forEach(function(d) {
@@ -162,7 +162,7 @@ function createVis() {
   focus
     .append('g')
     .attr('class', 'x axis')
-    .attr('transform', 'translate(0,' + height + ')')
+    .attr('transform', 'translate(0,' + heightFocus + ')')
     .call(xAxisFocus);
 
   focus
@@ -194,7 +194,7 @@ function createVis() {
   context
     .append('g')
     .attr('class', 'x axis')
-    .attr('transform', 'translate(0,' + height2 + ')')
+    .attr('transform', 'translate(0,' + heightContext + ')')
     .call(xAxisContext)
 
   context
@@ -228,7 +228,7 @@ function createVis() {
     .attr('class', 'brush')
     .call(brush)
     .selectAll('rect')
-    .attr('height', height2)
+    .attr('height', heightContext)
   
 }; // end createVis()
 
