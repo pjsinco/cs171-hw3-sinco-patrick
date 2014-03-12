@@ -18,7 +18,7 @@ var margin2 = {
 var width = 960 - margin.left - margin.right; // 910
 var height = 500 - margin.top - margin.bottom; // 390
 var height2 = 500 - margin2.top - margin2.bottom; // 50
-//var padding = 50;
+var padding = 30;
 var dataset = [];
 
 //var bbOverview = {
@@ -38,13 +38,13 @@ var dataset = [];
 var parseDate = d3.time.format('%b-%y').parse
 
 var xScaleFocus = d3.time.scale()
-  .range([0, width]);
-
-var xScaleContext = d3.time.scale()
-  .range([0, width]);
+  .range([padding, width]);
 
 var yScaleFocus = d3.scale.linear()
   .range([height, 0]);
+
+var xScaleContext = d3.time.scale()
+  .range([padding, width]);
 
 var yScaleContext = d3.scale.linear()
   .range([height2, 0]);
@@ -53,17 +53,18 @@ var xAxisFocus = d3.svg.axis()
   .scale(xScaleFocus)
   .orient('bottom');
 
+var yAxisFocus = d3.svg.axis()
+  .scale(yScaleFocus)
+  .orient('left');
+
 var xAxisContext = d3.svg.axis()
   .scale(xScaleContext)
   .orient('bottom');
 
-var yAxis = d3.svg.axis()
-  .scale(yScaleFocus)
-  .orient('left');
-
-//var yAxis2 = d3.svg.axis()
-  //.scale(yScaleContext)
-  //.orient('left');
+var yAxisContext = d3.svg.axis()
+  .scale(yScaleContext)
+  .orient('left')
+  .ticks(3);
 
 var areaFocus = d3.svg.area()
   .x(function(d) {
@@ -139,14 +140,40 @@ function createVis() {
   focus
     .append('g')
     .attr('class', 'y axis')
-    //.attr('transform', 'translate(' + padding + ',0)')
-    .call(yAxis)
+    .attr('transform', 'translate(' + padding + ',0)')
+    .call(yAxisFocus)
+
+  focus
+    .append('path')
+    .datum(dataset)
+    .attr('class', 'area')
+    .attr('d', areaFocus)
+
+  focus
+    .selectAll('circle')
+    .data(dataset)
+    .enter()
+    .append('circle')
+    .attr('class', 'circle')
+    .attr('r', 2)
+    .attr('cx', function(d) {
+      return xScaleFocus(d.date);
+    }) 
+    .attr('cy', function(d) {
+      return yScaleFocus(d.women);
+    }) 
 
   context
     .append('g')
     .attr('class', 'x axis')
     .attr('transform', 'translate(0,' + height2 + ')')
     .call(xAxisContext)
+
+  context
+    .append('g')
+    .attr('class', 'y axis')
+    .attr('transform', 'translate(' + padding + ',0)')
+    .call(yAxisContext)
     
   context
     .datum(dataset)
@@ -154,10 +181,18 @@ function createVis() {
     .attr('class', 'path')
     .attr('d', lineContext)
 
-  focus
-    .append('path')
-    .datum(dataset)
-    .attr('class', 'area')
-    .attr('d', areaFocus)
+  context
+    .selectAll('circle')
+    .data(dataset)
+    .enter()
+    .append('circle')
+    .attr('class', 'circle')
+    .attr('r', 2)
+    .attr('cx', function(d) {
+      return xScaleContext(d.date);
+    }) 
+    .attr('cy', function(d) {
+      return yScaleContext(d.women);
+    }) 
 
 }; // end createVis()
