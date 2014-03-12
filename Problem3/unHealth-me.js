@@ -37,40 +37,49 @@ var dataset = [];
 
 var parseDate = d3.time.format('%b-%y').parse
 
-var xScale = d3.time.scale()
+var xScaleFocus = d3.time.scale()
   .range([0, width]);
 
-var xScale2 = d3.time.scale()
+var xScaleContext = d3.time.scale()
   .range([0, width]);
 
-var yScale = d3.scale.linear()
+var yScaleFocus = d3.scale.linear()
   .range([height, 0]);
 
-var yScale2 = d3.scale.linear()
+var yScaleContext = d3.scale.linear()
   .range([height2, 0]);
 
-var xAxis = d3.svg.axis()
-  .scale(xScale)
+var xAxisFocus = d3.svg.axis()
+  .scale(xScaleFocus)
   .orient('bottom');
 
-var xAxis2 = d3.svg.axis()
-  .scale(xScale2)
+var xAxisContext = d3.svg.axis()
+  .scale(xScaleContext)
   .orient('bottom');
 
 var yAxis = d3.svg.axis()
-  .scale(yScale)
+  .scale(yScaleFocus)
   .orient('left');
 
 //var yAxis2 = d3.svg.axis()
-  //.scale(yScale2)
+  //.scale(yScaleContext)
   //.orient('left');
 
-var line = d3.svg.line()
+var areaFocus = d3.svg.area()
   .x(function(d) {
-    return xScale2(d.date);
+    return xScaleFocus(d.date);
+  })
+  .y0(height)
+  .y1(function(d) {
+    return yScaleFocus(d.women);
+  })
+
+var lineContext = d3.svg.line()
+  .x(function(d) {
+    return xScaleContext(d.date);
   })
   .y(function(d) {
-    return yScale2(d.women);
+    return yScaleContext(d.women);
   })
 
 var svg = d3.select('body')
@@ -96,25 +105,25 @@ d3.csv('unHealth-women.csv', function(error, data) {
 
   dataset = data;
 
-  // define xScale's domain now because we want to use 
+  // define xScaleFocus's domain now because we want to use 
   // the data before we reformat it
-  xScale
+  xScaleFocus
     .domain(d3.extent(data, function(d) {
       return d.date; 
     }));
 
   console.log(data);
 
-  yScale
+  yScaleFocus
     .domain(d3.extent(data.map(function(d) {
       return d.women;
     })));
 
-  xScale2
-    .domain(xScale.domain());
+  xScaleContext
+    .domain(xScaleFocus.domain());
 
-  yScale2
-    .domain(yScale.domain());
+  yScaleContext
+    .domain(yScaleFocus.domain());
 
   createVis();
 
@@ -125,7 +134,7 @@ function createVis() {
     .append('g')
     .attr('class', 'x axis')
     .attr('transform', 'translate(0,' + height + ')')
-    .call(xAxis);
+    .call(xAxisFocus);
 
   focus
     .append('g')
@@ -137,12 +146,18 @@ function createVis() {
     .append('g')
     .attr('class', 'x axis')
     .attr('transform', 'translate(0,' + height2 + ')')
-    .call(xAxis2)
+    .call(xAxisContext)
     
   context
     .datum(dataset)
     .append('path')
     .attr('class', 'path')
-    .attr('d', line)
+    .attr('d', lineContext)
+
+  focus
+    .append('path')
+    .datum(dataset)
+    .attr('class', 'area')
+    .attr('d', areaFocus)
 
 }; // end createVis()
