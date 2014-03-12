@@ -37,6 +37,9 @@ var dataset = [];
 
 var parseDate = d3.time.format('%b-%y').parse
 
+/*
+ * Set up scales
+ */
 var xScaleFocus = d3.time.scale()
   .range([padding, width]);
 
@@ -49,6 +52,9 @@ var xScaleContext = d3.time.scale()
 var yScaleContext = d3.scale.linear()
   .range([height2, 0]);
 
+/*
+ * Set up axes
+ */
 var xAxisFocus = d3.svg.axis()
   .scale(xScaleFocus)
   .orient('bottom');
@@ -66,6 +72,9 @@ var yAxisContext = d3.svg.axis()
   .orient('left')
   .ticks(3);
 
+/*
+ * Set up area function
+ */
 var areaFocus = d3.svg.area()
   .x(function(d) {
     return xScaleFocus(d.date);
@@ -75,6 +84,9 @@ var areaFocus = d3.svg.area()
     return yScaleFocus(d.women);
   })
 
+/*
+ * Set up line function
+ */
 var lineContext = d3.svg.line()
   .x(function(d) {
     return xScaleContext(d.date);
@@ -83,10 +95,25 @@ var lineContext = d3.svg.line()
     return yScaleContext(d.women);
   })
 
+/*
+ * Set up brush
+ */
+var brush = d3.svg.brush()
+  .x(xScaleContext)
+  .on('brush', brushed)
+
 var svg = d3.select('body')
   .append('svg')
   .attr('height', height + margin.top + margin.bottom) // 
   .attr('width', width + margin.left + margin.right)
+
+//svg
+  //.append('defs')
+  //.append('clipPath')
+    //.attr('id', 'clip')
+  //.append('rect')
+    //.attr('width', width - padding)
+    //.attr('height', height)
 
 var focus = svg.append('g')
   .attr('class', 'focus')
@@ -195,4 +222,28 @@ function createVis() {
       return yScaleContext(d.women);
     }) 
 
+  context
+    .append('g')
+    .attr('class', 'brush')
+    .call(brush)
+    .selectAll('rect')
+    .attr('height', height2)
+    //.attr('transform', 'translate(20, 100)')
+      //.attr('y', -6)
+      //.attr('height', height2 + 7)
+  
 }; // end createVis()
+
+function brushed() {
+  xScaleFocus
+    .domain(brush.empty() ? xScaleContext.domain() : brush.extent());
+
+  focus
+    .select('.area')
+    .attr('d', areaFocus);
+
+  focus
+    .select('.x.axis')
+    .call(xAxisFocus);
+    
+}
