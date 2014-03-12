@@ -100,12 +100,41 @@ var lineContext = d3.svg.line()
  */
 var brush = d3.svg.brush()
   .x(xScaleContext)
-  .on('brush', brushed)
+  .on('brush', function(d) {
+    console.log(brush.extent());
+    return brushed();
+  });
+
 
 var svg = d3.select('body')
   .append('svg')
   .attr('height', heightFocus + marginFocus.top + marginFocus.bottom) // 
   .attr('width', width + marginFocus.left + marginFocus.right)
+
+d3.select('body')
+  .append('div')
+    .text('callout')
+  .append('button')
+    .attr('class', 'callout')
+    .attr('id', 'callout1')
+    .text('Highlight')
+  
+d3.select('body')
+  .append('div')
+    .text('callout')
+  .append('button')
+    .attr('class', 'callout')
+    .attr('id', 'callout2')
+    .text('Highlight')
+
+d3.selectAll('.callout')
+  .on('click', function() {
+    //console.log(d3.select(this));
+    console.log('clicked callout' + this.id );
+    context.select('.extent')
+      .attr('width', 20)
+      .attr('x', 613);
+  })
 
 svg
   .append('defs')
