@@ -250,7 +250,7 @@ var createVis = function() {
         .style('fill', function(d) {
           // interpolated values are smaller, light gray, transparent
           if (d.interp) {
-            return 'rgba(0, 0, 0, 0.8)';
+            return 'rgba(0, 0, 0, 0.6)';
           } else {
             return color(agencies[i].agency);
           }
