@@ -1,8 +1,4 @@
 var marginContext = {
-  //top: 50,
-  //right: 50,
-  //bottom: 50,
-  //left: 50
   top    : 10,
   right  : 10,
   bottom : 430,
@@ -20,20 +16,6 @@ var heightFocus = 500 - marginFocus.top - marginFocus.bottom; // 390
 var heightContext = 500 - marginContext.top - marginContext.bottom; // 50
 var padding = 30;
 var dataset = [];
-
-//var bbOverview = {
-//  x: 0,
-//  y: 10,
-//  w: width,
-//  h: 50
-//}
-//
-//var bbDetail = {
-//  x: 0,
-//  y: 100,
-//  w: width,
-//  h: 300
-//}
 
 var parseDate = d3.time.format('%b-%y').parse
 
@@ -136,6 +118,7 @@ callout1
 callout1
   .append('button')
     .attr('class', 'btn')
+    .attr('name', 'callout1')
     .text('Highlight')
   
 var callout2 = d3.select('body')
@@ -153,10 +136,11 @@ callout2
 callout2
   .append('button')
     .attr('class', 'btn')
+    .attr('name', 'callout2')
     .text('Highlight')
 
 /*
- * Set up svg element
+ * Set up parent svg, focus, context
  */
 var svg = d3.select('body')
   .append('svg')
@@ -182,6 +166,9 @@ var context = svg.append('g')
   .attr('transform', 'translate(' + marginContext.left + ',' 
     + marginContext.top + ')');
 
+/*
+ * Import data
+ */
 d3.csv('unHealth-women.csv', function(error, data) {
   data.forEach(function(d) {
     d.date = parseDate(d.date);
@@ -305,19 +292,30 @@ function brushed() {
     .attr('cx', function(d) {
       return xScaleFocus(d.date);
     })
+}
 
 /*
  * Set up event listeners
  */
-d3.selectAll('.callout')
+d3.selectAll('.btn')
   .on('click', function() {
-    // set brush to the dates we want
-    brush.extent(
-      [
-        d3.time.format('%Y-%m-%d').parse('2012-01-21'),
-        d3.time.format('%Y-%m-%d').parse('2012-02-15')
-      ]
-    )
+    if (this.name === 'callout1') {
+      // set brush to the dates we want
+      brush.extent(
+        [
+          d3.time.format('%Y-%m-%d').parse('2012-01-21'),
+          d3.time.format('%Y-%m-%d').parse('2012-02-15')
+        ]
+      )
+    } else if (this.name === 'callout2') {
+      brush.extent(
+        [
+          d3.time.format('%Y-%m-%d').parse('2012-07-21'),
+          d3.time.format('%Y-%m-%d').parse('2012-08-15')
+        ]
+      )
+
+    }
 
     // call brush on context selection
     context
@@ -326,4 +324,3 @@ d3.selectAll('.callout')
     // call the brush update function
     brushed();
   })
-}
