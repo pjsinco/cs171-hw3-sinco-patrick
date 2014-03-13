@@ -108,7 +108,8 @@ var createVis = function() {
 
   console.log(agencies);
 
-  var xScale = d3.scale.linear()
+  var xScale = d3.scale.pow()
+    .exponent(5)
     // find max value by iterating through all agencies
     // and finding max value in each,
     // then find max value of all the maxes;
@@ -121,6 +122,7 @@ var createVis = function() {
     })])
     .range([padding, bbVis.w]);
   
+
   var yScale = d3.scale.linear()
     // same nested max() process as above
     .domain([0, d3.max(agencies, function(agency, i) {
@@ -134,7 +136,7 @@ var createVis = function() {
   var xAxis = d3.svg.axis()
     .scale(xScale)
     .orient('bottom')
-    .ticks(20)
+    .tickValues(['0', '1000', '1500', '1600', '1700', '1800', '1900', '2000', '2050'])
     .tickFormat(d3.format('d'))
 
   var yAxis = d3.svg.axis()
@@ -186,6 +188,7 @@ var createVis = function() {
     .attr('class', 'line')
     .attr('d', function(d, i) {
       if (i >= d.firstYearIndex) {
+        console.log(d, d.firstYearIndex);
         return line(d.values);
       }
     })
@@ -219,7 +222,7 @@ var createVis = function() {
         .style('fill', function(d) {
           // interpolated values are fuchsia
           if (d.interp) {
-            return 'fuchsia';
+            return 'lightgrey';
           } else {
             return color(agencies[i].agency);
           }

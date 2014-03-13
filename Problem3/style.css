@@ -104,7 +104,7 @@ svg .detailArea {
 .callout {
   width: 430px;
   float: left;
-  padding-bottom: 20px;
+  padding-bottom: 10px;
   padding-left: 50px;
 }
 .callout p {
@@ -123,4 +123,6 @@ svg .detailArea {
 }
 .leadin p {
   margin-top: 6px;
+  font-size: 16px;
+  line-height: 22px;
 }
