@@ -98,6 +98,7 @@ svg .detailArea {
 
 .callout h3 {
   margin-bottom: 0;
+  font-weight: 500;
 }
 
 .callout {
@@ -107,7 +108,7 @@ svg .detailArea {
   padding-left: 50px;
 }
 .callout p {
-  font-size: 10px;
+  font-size: 12px;
   margin-top: 3px;
 }
 .leadin {
@@ -116,7 +117,9 @@ svg .detailArea {
   margin-left: 50px;
 }
 .leadin h1 {
-  margin-bottom: 0;
+  margin: 0;
+  font-weight: 100;
+  font-size: 4em;
 }
 .leadin p {
   margin-top: 6px;
