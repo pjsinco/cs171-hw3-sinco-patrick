@@ -51,19 +51,10 @@ d3.csv('population-data.csv', function(data) {
     }
   });
 
-  // add a property to each agency indicating 
-  // the index of the first year with data
-  agencies.forEach(function(agency) {
-    var indexCounter = 0;
-    while (indexCounter < agency.values.length) {
-      if (agency.values[indexCounter].est !== 0) {
-        agency.firstYearIndex = indexCounter;
-        break;
-      }
-      indexCounter++;
-    }
-  })
 
+
+
+  // filter out first years without data and 
   // fill in missing data with interpolations
   agencies.forEach(function(agency) {
 
@@ -73,10 +64,17 @@ d3.csv('population-data.csv', function(data) {
     while (c < agency.values.length) {
       if (agency.values[c].est !== 0) {
         firstYearWithData = agency.values[c].year;
+        firstYearWithData = c;
         break;
       }
       c++;
     }
+
+    // filter out years before first year with data
+    agency.values = agency.values.filter(function(d, i) {
+      console.log(agency.agency, firstYearWithData, i, i >= firstYearWithData);
+      return i >= firstYearWithData;
+    });
 
     var years = []; 
     var estimates = [];
@@ -101,6 +99,20 @@ d3.csv('population-data.csv', function(data) {
 
   }); // end agencies.forEach()
 
+  // add a property to each agency indicating 
+  // the index of the first year with data
+  agencies.forEach(function(agency) {
+    var indexCounter = 0;
+    while (indexCounter < agency.values.length) {
+      if (agency.values[indexCounter].est !== 0) {
+        agency.firstYearIndex = indexCounter;
+        break;
+      }
+      indexCounter++;
+    }
+  })
+
+
   return createVis();
 });
 
@@ -109,7 +121,7 @@ var createVis = function() {
   console.log(agencies);
 
   var xScale = d3.scale.pow()
-    .exponent(5)
+    .exponent(15)
     // find max value by iterating through all agencies
     // and finding max value in each,
     // then find max value of all the maxes;
@@ -188,7 +200,7 @@ var createVis = function() {
     .attr('class', 'line')
     .attr('d', function(d, i) {
       if (i >= d.firstYearIndex) {
-        console.log(d, d.firstYearIndex);
+        //console.log(d, d.firstYearIndex);
         return line(d.values);
       }
     })
@@ -208,9 +220,10 @@ var createVis = function() {
         .append('circle')
         .attr('class', agencies[i].agency)
         .attr('r', function(d) {
-          // hide circles whose bound estimate is 0
-          if (d.est) { 
-            return 2;  
+          if (!d.interp) { 
+            return 5;  
+          } else {
+            return 3;
           }
         })
         .attr('cx', function(d) {
@@ -222,7 +235,7 @@ var createVis = function() {
         .style('fill', function(d) {
           // interpolated values are fuchsia
           if (d.interp) {
-            return 'lightgrey';
+            return 'rgba(0, 0, 0, 0.2)';
           } else {
             return color(agencies[i].agency);
           }
