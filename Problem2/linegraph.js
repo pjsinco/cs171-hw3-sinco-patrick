@@ -117,8 +117,6 @@ d3.csv('population-data.csv', function(data) {
 
 var createVis = function() {
 
-  console.log(agencies);
-
   var xScale = d3.scale.pow()
     .exponent(15)
     // find max value by iterating through all agencies
@@ -166,6 +164,7 @@ var createVis = function() {
       .text('Year')
       .attr('transform', 'translate(' + bbVis.w + ',-5)')
 
+  // set x ticks on an angle
   svg
     .selectAll('.tick text')
     .attr('transform', function(d, i) {
@@ -182,8 +181,6 @@ var createVis = function() {
         return -10
       }
     })
-
-      
 
   // place y-axis
   svg
@@ -241,7 +238,7 @@ var createVis = function() {
           if (!d.interp) { 
             return 5;  
           } else {
-            return 3;
+            return 2;
           }
         })
         .attr('cx', function(d) {
@@ -251,24 +248,14 @@ var createVis = function() {
           return yScale(d.est);
         })
         .style('fill', function(d) {
-          // interpolated values are fuchsia
+          // interpolated values are smaller, light gray, transparent
           if (d.interp) {
-            return 'rgba(0, 0, 0, 0.2)';
+            return 'rgba(0, 0, 0, 0.8)';
           } else {
             return color(agencies[i].agency);
           }
         })
+        .style('fill-opacity', 0.8)
   }
      
-  var visFrame = svg.append('g')
-    .attr('transform', 'translate(' + bbVis.x + ',' 
-      + (bbVis.y + bbVis.h) + ')');
-    // ...
-
-  visFrame.append('rect')
-    //.attr('fill', 'cadetblue')
-    //.attr('width', 100)
-    //.attr('height', 100)
-    // ...
-
 } // end createVis()
