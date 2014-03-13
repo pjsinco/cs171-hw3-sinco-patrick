@@ -72,7 +72,6 @@ d3.csv('population-data.csv', function(data) {
 
     // filter out years before first year with data
     agency.values = agency.values.filter(function(d, i) {
-      console.log(agency.agency, firstYearWithData, i, i >= firstYearWithData);
       return i >= firstYearWithData;
     });
 
@@ -148,7 +147,7 @@ var createVis = function() {
   var xAxis = d3.svg.axis()
     .scale(xScale)
     .orient('bottom')
-    .tickValues(['0', '1000', '1500', '1600', '1700', '1800', '1900', '2000', '2050'])
+    .tickValues(['0', '1500', '1600', '1700', '1800', '1900', '2000', '2050'])
     .tickFormat(d3.format('d'))
 
   var yAxis = d3.svg.axis()
@@ -166,6 +165,25 @@ var createVis = function() {
       .attr('text-anchor', 'end')
       .text('Year')
       .attr('transform', 'translate(' + bbVis.w + ',-5)')
+
+  svg
+    .selectAll('.tick text')
+    .attr('transform', function(d, i) {
+      // skip '0' tick
+      if (i > 0) {
+        return 'rotate(-45)';
+      }
+     })
+    .attr('text-anchor', 'end')
+    .attr('y', 10)
+    .attr('x', function(d, i) {
+      // skip '0' tick
+      if (i > 0) {
+        return -10
+      }
+    })
+
+      
 
   // place y-axis
   svg
