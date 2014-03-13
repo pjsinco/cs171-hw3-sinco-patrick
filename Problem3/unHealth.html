@@ -3,69 +3,7 @@
 <head>
   <title></title>
   <script src="../libs/d3.v3.min.js"></script>
-  <style>
-    body {
-      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-      font-size: 10px;
-      color: #888;
-    }
-
-    svg {
-      float: left;
-    }
-
-    svg .axis path,
-    svg .axis line {
-      fill: none;
-      stroke: lightgrey; 
-    }
-
-    svg .brush .extent {
-      stroke: black;
-      fill-opacity: 0.125;
-      shape-rendering: crispEdges; 
-    }
-
-    svg .brush .handle {
-      stroke: black;
-      fill-opacity: 0.125; 
-    }
-
-    svg .timeArea {
-      fill: cadetblue;
-		}
-
-    svg .path {
-      stroke: cadetblue;
-      fill: none;
-    }
-
-    svg .area {
-      stroke: cadetblue;
-      fill: rgb(190, 217, 218);
-      clip-path: url(#clip);
-    }
-
-    svg .circle {
-      fill: cadetblue;
-      clip-path: url(#clip);
-    }
-    
-    svg .overviewPath {
-      stroke-width: 1;
-    }
-
-    svg .detailPath {
-      stroke-width: 2;
-    }
-
-    svg .detailArea {
-      stroke: none;
-      fill: cadetblue;
-      fill-opacity: 0.5;
-    }
-
-  </style>
+  <link rel="stylesheet" href="style.css" type="text/css">
 
 </head>
 <body>

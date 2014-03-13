@@ -6,14 +6,14 @@ var marginContext = {
   top    : 10,
   right  : 10,
   bottom : 430,
-  left   : 40
+  left   : 60
 };
 
 var marginFocus = {
   top    : 100,
   right  : 10,
   bottom : 20,
-  left   : 40
+  left   : 60
 }
 var width = 960 - marginFocus.left - marginFocus.right; // 910
 var heightFocus = 500 - marginFocus.top - marginFocus.bottom; // 390
@@ -106,44 +106,62 @@ var brush = d3.svg.brush()
   });
 
 
+/*
+ * Set up text and callouts
+ */
+var leadIn = d3.select('body')
+  .append('div')
+    .attr('class', 'leadin')
+
+leadIn
+  .append('h1')
+  .text('Trends in tweets mentioning women\'s health')
+
+leadIn
+  .append('p')
+  .text('Aenean lacinia bibendum nulla sed consectetur. Donec ullamcorper nulla non metus auctor fringilla. Aenean lacinia bibendum nulla sed consectetur. Donec ullamcorper nulla non metus auctor fringilla. Nullam id dolor id nibh ultricies vehicula ut id elit. Donec ullamcorper nulla non metus auctor fringilla. Vivamus sagittis lacus vel augue laoreet rutrum faucibus dolor auctor.')
+
+var callout1 = d3.select('body')
+    .append('div')
+    .attr('class', 'callout');
+
+callout1
+    .append('h3')
+    .text('Porta tortor vehicula bibendum');
+
+callout1
+    .append('p')
+    .text('Cras justo odio, dapibus ac facilisis in, egestas eget quam. Nulla vitae elit libero, a pharetra augue. Nulla vitae elit libero, a pharetra augue. Duis mollis, est non commodo luctus, nisi erat porttitor ligula, eget lacinia odio sem nec elit.');
+
+callout1
+  .append('button')
+    .attr('class', 'btn')
+    .text('Highlight')
+  
+var callout2 = d3.select('body')
+  .append('div')
+    .attr('class', 'callout')
+
+callout2
+  .append('h3')
+  .text('Tellus elit commodo egestas vehicula')
+
+callout2
+  .append('p')
+  .text('Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Vestibulum id ligula porta felis euismod semper. Praesent commodo cursus magna, vel scelerisque nisl consectetur et. Donec id elit non mi porta gravida at eget metus. Morbi leo risus, porta ac consectetur ac, vestibulum at eros.')
+
+callout2
+  .append('button')
+    .attr('class', 'btn')
+    .text('Highlight')
+
+/*
+ * Set up svg element
+ */
 var svg = d3.select('body')
   .append('svg')
   .attr('height', heightFocus + marginFocus.top + marginFocus.bottom) // 
   .attr('width', width + marginFocus.left + marginFocus.right)
-
-d3.select('body')
-  .append('div')
-    .text('callout')
-  .append('button')
-    .attr('class', 'callout')
-    .attr('id', 'callout1')
-    .text('Highlight')
-  
-d3.select('body')
-  .append('div')
-    .text('callout')
-  .append('button')
-    .attr('class', 'callout')
-    .attr('id', 'callout2')
-    .text('Highlight')
-
-d3.selectAll('.callout')
-  .on('click', function() {
-    // set brush to the dates we want
-    brush.extent(
-      [
-        d3.time.format('%Y-%m-%d').parse('2012-01-21'),
-        d3.time.format('%Y-%m-%d').parse('2012-02-15')
-      ]
-    )
-
-    // call brush on context selection
-    context
-      .call(brush);
-
-    // call the brush update function
-    brushed();
-  })
 
 svg
   .append('defs')
@@ -287,4 +305,25 @@ function brushed() {
     .attr('cx', function(d) {
       return xScaleFocus(d.date);
     })
+
+/*
+ * Set up event listeners
+ */
+d3.selectAll('.callout')
+  .on('click', function() {
+    // set brush to the dates we want
+    brush.extent(
+      [
+        d3.time.format('%Y-%m-%d').parse('2012-01-21'),
+        d3.time.format('%Y-%m-%d').parse('2012-02-15')
+      ]
+    )
+
+    // call brush on context selection
+    context
+      .call(brush);
+
+    // call the brush update function
+    brushed();
+  })
 }
