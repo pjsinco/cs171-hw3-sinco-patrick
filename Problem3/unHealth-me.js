@@ -129,11 +129,20 @@ d3.select('body')
 
 d3.selectAll('.callout')
   .on('click', function() {
-    //console.log(d3.select(this));
-    console.log('clicked callout' + this.id );
-    context.select('.extent')
-      .attr('width', 20)
-      .attr('x', 613);
+    // set brush to the dates we want
+    brush.extent(
+      [
+        d3.time.format('%Y-%m-%d').parse('2012-01-21'),
+        d3.time.format('%Y-%m-%d').parse('2012-02-15')
+      ]
+    )
+
+    // call brush on context selection
+    context
+      .call(brush);
+
+    // call the brush update function
+    brushed();
   })
 
 svg
