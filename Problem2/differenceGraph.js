@@ -121,7 +121,6 @@ d3.csv('population-data.csv', function(data) {
 
   console.log(agencies);
 
-
   // add a property to each agency indicating 
   // the index of the first year with data
   agencies.forEach(function(agency) {

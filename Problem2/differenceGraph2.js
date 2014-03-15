@@ -18,7 +18,8 @@ var heightSmall =
   500 - marginSmallVis.top - marginSmallVis.bottom; // 30
 var yearStats = [];
 
-var xScale = d3.scale.linear()
+var xScale = d3.scale.pow()
+  .exponent(15)
   .range([0, width]);
 
 var yScaleBig = d3.scale.linear()
@@ -30,6 +31,8 @@ var yScaleSmall = d3.scale.linear()
 var xAxis = d3.svg.axis()
   .scale(xScale)
   .orient('bottom')
+  .tickValues(['0', '1500', '1600', '1700', '1800', '1900', 
+    '2000', '2050'])
   .tickFormat(d3.format('d'));
   
 var yAxisBig = d3.svg.axis()
@@ -136,6 +139,27 @@ function createVis() {
     .attr('class', 'x axis')
     .attr('transform', 'translate(0,' + heightBig + ')')
     .call(xAxis)
+    .append('text')
+      .attr('text-anchor', 'end')
+      .text('Year')
+      .attr('transform', 'translate(' + width + ',-5)')
+
+  svg
+    .selectAll('.tick text')
+    .attr('transform', function(d, i) {
+      // skip '0' tick
+      if (i > 0) {
+        return 'rotate(-45)';
+      }
+    })
+    .attr('text-anchor', 'end')
+    .attr('y', 10)
+    .attr('x', function(d, i) {
+      // skip '0' tick
+      if (i > 0) {
+        return -10
+      }
+    });
 
   // add big Y axis
   svg
