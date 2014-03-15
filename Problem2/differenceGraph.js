@@ -1,252 +1,380 @@
-// d3 margin convention
-// http://bl.ocks.org/mbostock/3019563
-var margin = {
-  top: 50, 
-  right: 50,
-  bottom: 50,
-  left: 50
-};
-
-var width = 960 - margin.left - margin.right;
-var height = 600 - margin.bottom - margin.top;
-var padding = 40;
-
-var bbVis = {
-  x: 100,
-  y: 10,
-  w: width - 100,
-  h: 300
+// d3 marginBigVis convention
+var marginBigVis = {
+  top: 10,
+  right: 10,
+  bottom: 100,
+  left: 40
+}
+var marginSmallVis = {
+  top: 330,
+  right: 10,
+  bottom: 20,
+  left: 40
 }
 
-var agencies = [];
+var width = 960 - marginBigVis.right - marginBigVis.left; // 890
+var heightBig = 500 - marginBigVis.top - marginBigVis.bottom; // 380
+var heightSmall = 
+  500 - marginSmallVis.top - marginSmallVis.bottom; // 130
 var yearStats = [];
-var color = d3.scale.category10();
+var millionFormat = d3.format('s');
 
+var xScale = d3.scale.pow()
+  .exponent(15)
+  .range([0, width]);
 
-var xScale = d3.scale.linear()
-  .range([padding, bbVis.w]);
+var yScaleBig = d3.scale.linear()
+  .range([heightBig, 0]);
 
-var yScale = d3.scale.linear()
-  .range([bbVis.h, 0]);
+var yScaleSmall = d3.scale.linear()
+  .range([0, heightSmall]);
 
 var xAxis = d3.svg.axis()
   .scale(xScale)
-  .orient('bottom')
-  .tickFormat(d3.format('d'))
-  .ticks(20)
-
-
-var yAxis = d3.svg.axis()
-  .scale(yScale)
-  .ticks(6)
+  .orient('top')
+  .tickSize(heightBig)
+  .tickValues(['0', '1500', '1600', '1700', '1800', '1900', 
+    '2000', '2050'])
+  .tickFormat(d3.format('d'));
+  var yAxisBig = d3.svg.axis()
+  .scale(yScaleBig)
   .orient('left')
   .tickFormat(d3.format('.2s'));
 
-var svg = d3.select('body')
+var yAxisSmall = d3.svg.axis()
+  .scale(yScaleSmall)
+  .orient('left')
+  .ticks(3)
+  //.tickFormat(d3.format('.2s'));
+
+var svg = d3.select('#vis')
   .append('svg')
-  .attr('height', height + margin.top + margin.bottom)
-  .attr('width', width + margin.left + margin.right)
+  .attr('width', width + marginBigVis.left + marginBigVis.right)
+  .attr('height', heightBig + marginBigVis.top + marginBigVis.bottom)
   .append('g')
-  .attr('transform', 'translate(' + margin.left + ',' 
-    + margin.right + ')')
+    .attr('transform', 'translate(' + marginBigVis.left + ','
+      + marginBigVis.right + ')');
 
 var line = d3.svg.line()
   .x(function(d) {
     return xScale(d.year);
   })
   .y(function(d) {
-    return yScale(d.mean);
+    return yScaleBig(d.mean);
   })
 
 d3.csv('population-data.csv', function(data) {
   var keys = [];
+   
+  // get the keys in an array
   data.forEach(function(y) {
     keys = d3.keys(y).filter(function(d) {
-      return d !== 'year';
+      return d !== 'year'; 
     })
-  })
+  });
+
 
   // generate year-by-year descriptive stats
   data.forEach(function(y) {
     var vals = [];
+    var num = 0; // number of agencies reporting an estimate that year
     keys.forEach(function(key) {
-      vals.push(parseInt(y[key]))
+      if (parseInt(y[key])) {
+        num++;  // increment n
+      }
+      if (y[key]) {
+        vals.push(parseInt(y[key]));
+      }
     })
-    var yearMin = d3.min(vals)
-    var yearMax = d3.max(vals)
+    var yearMin = d3.min(vals);
+    var yearMax = d3.max(vals);
     var yearMean = d3.mean(vals);
     yearStats.push(
       {
         year: +y.year,
+        //low: yearMin / 1000000,
         low: yearMin,
+        //high: yearMax / 1000000,
         high: yearMax,
+        //mean: yearMean / 1000000,
         mean: yearMean,
+        //range: (yearMax - yearMin) / 1000000,
+        range: (yearMax - yearMin),
+        n: num,
+        //stdDev: stdDev(vals) / 1000000
+        stdDev: stdDev(vals)
       }
-    );
-  });
-
-  console.log(yearStats);
-
-  console.log(yearStats);
-  keys.forEach(function(key) {
-    var vals = [];
-    
-  });
-
-  // only use dates divisible by 100
-  data = data.filter(function(d) {
-    return parseInt(d.year) % 100 === 0;
+    )
   })
-
-  color
-    .domain(
-      d3.keys(data[0]).filter(function(key) {
-        return key !== 'year';
-      })
-    );
-
-  // make the data into something we can work with
-  agencies = color.domain().map(function(agency) {
-    return {
-      agency: agency,
-      values: data.map(function(d) {
-        return {
-          year: parseInt(d.year),
-          est: +d[agency], // unary operator to turn string into int
-          interp: false
-        };
-      })
-    }
-  });
-
-  console.log(agencies);
-
-  // add a property to each agency indicating 
-  // the index of the first year with data
-  agencies.forEach(function(agency) {
-    var indexCounter = 0;
-    while (indexCounter < agency.values.length) {
-      if (agency.values[indexCounter].est !== 0) {
-        agency.firstYearIndex = indexCounter;
-        break;
-      }
-      indexCounter++;
-    }
-  })
-
-  // fill in missing data with interpolations
-  agencies.forEach(function(agency) {
-
-    // find first year with nonzero data
-    var c = 0;
-    var firstYearWithData;
-    while (c < agency.values.length) {
-      if (agency.values[c].est !== 0) {
-        firstYearWithData = agency.values[c].year;
-        break;
-      }
-      c++;
-    }
-
-    var years = []; 
-    var estimates = [];
-    for (var i = c; i < agency.values.length; i++) {
-      // if we have an estimate, add the est and year to 
-      if (agency.values[i].est) {
-        years.push(agency.values[i].year);
-        estimates.push(agency.values[i].est);
-      }
-    }
   
-    var interp = d3.scale.linear()
-      .domain(years)
-      .range(estimates)
-    
-    // interpolate estimate if it's 0
-    for (var i = c; i < agency.values.length; i++) {
-      if (agency.values[i].est === 0) {
-        agency.values[i].est = interp(agency.values[i].year);
-        agency.values[i].interp = true;
-      }
-    }
-
-  }); // end agencies.forEach()
-      
   return createVis();
-  });
 
-var createVis = function() {
-  console.log(agencies);
+}); // end d3.csv()
 
+function createVis() {
+  console.log(yearStats);
+
+  // extent is years
   xScale
-    .domain([0, d3.max(agencies, function(agency, i) {
-      var max = d3.max(agency.values, function(d) {
-        return d.year; 
-      })
-      return max;
-    })])
+    .domain(d3.extent(yearStats, function(d) {
+      return d.year;
+    }));
 
-  yScale
-    .domain([0, d3.max(agencies, function(agency, i) {
-      var max = d3.max(agency.values, function(d) {
-        return d.est; 
-      })
-      return max;
-    })])
+  // extent is mean
+  yScaleBig 
+    .domain(d3.extent(yearStats, function(d) {
+      return d.mean;
+    }));
 
+  // extent is std dev
+  yScaleSmall
+    .domain(d3.extent(yearStats, function(d) {
+      return d.stdDev;
+    }));
+
+  // add X axis
   svg
     .append('g')
     .attr('class', 'x axis')
-    .attr('transform', 'translate(0,' + bbVis.h + ')')
+    .attr('transform', 'translate(0,' + heightBig + ')')
     .call(xAxis)
+    .append('text')
+      .attr('text-anchor', 'end')
+      .text('Darker values are more certain estimates')
+      .attr('transform', 'translate(' + (width - 5) + ',-5)')
 
+  svg
+    .selectAll('.tick text')
+    .attr('transform', function(d, i) {
+      // skip '0' tick
+      if (i > 0) {
+        return 'rotate(-45)';
+      }
+    })
+    .attr('text-anchor', 'end')
+    .attr('y', 10)
+    .attr('x', function(d, i) {
+      // skip '0' tick
+      if (i > 0) {
+        return -10
+      }
+    });
+
+  // add big Y axis
   svg
     .append('g')
     .attr('class', 'y axis')
-    .attr('transform', 'translate(40, 0)')
-    .call(yAxis)
+    .attr('transform', 'translate(0,0)')
+    .call(yAxisBig)
 
+  // add little Y axis
+//  svg
+//    .append('g')
+//    .attr('class', 'y axis')
+//    .attr('transform', 'translate(0,' + heightBig + ')')
+//    .call(yAxisSmall)
+
+  // add consensus line
   svg
     .append('path')
     .datum(yearStats)
-    .attr('class', 'line')
-    .attr('d', line)
-    .style('fill', 'none')
-    .style('stroke', '#eee')
-    .style('stroke-width', 3)
+      .attr('class', 'line')
+      .attr('d', function(d) {
+        return line(d);
+      })
+      .style('fill', 'none')
+      .style('stroke', '#ccc')
+      .style('stroke-width', 3)
 
-
-  // iterate through all 5 agencies,
-  // add circle elments classed to name of agency
-  for (var i = 0; i < agencies.length; i++) {
-    svg
-      .selectAll('.' + agencies[i].agency)
-      .data(agencies[i].values)
-      .enter()
-        .append('circle')
-        .attr('class', agencies[i].agency)
-        .attr('r', function(d) {
-          // hide circles whose bound estimate is 0
-          if (d.est) { 
-            return 3;  
-          }
-        })
-        .attr('cx', function(d) {
-          return xScale(d.year);
-        })
-        .attr('cy', function(d) {
-          return yScale(d.est);
-        })
-        .style('fill', function(d) {
-          // interpolated values are fuchsia
-          if (d.interp) {
-            return '#f5f5f5';
-          } else {
-            return color(agencies[i].agency);
-          }
-        })
-  }
+  // add range bar graph
+//  svg.selectAll('.rangeBar')
+//    .data(yearStats)
+//    .enter()
+//      .append('rect')
+//      .attr('class', 'rangeBar')
+//      .style('fill', '#ddd')
+//      .attr('x', function(d) {
+//        return xScale(d.year) - 1.5;
+//      })
+//      .attr('y', function(d) {
+//        return yScaleBig(d.mean)
+//      })
+//      .attr('height', function(d) {
+//        console.log(yScaleBig(d.range) - heightBig);
+//        //return yScaleBig(d.range) - heightBig;
+//        return d.range;
+//        //return d.range;
+//      })
+//      .attr('width', 3)
+//      .attr('transform', function(d) {
+//        return 'translate(0, -' + (d.range / 2) + ')';
+//      })
+  
+    
 
 
 
-} // end createVis()
+
+  // add upside down bar graph for stdDev vals 
+  //var barGraph = svg.append('g')
+    //.attr('class', 'bar_graph');
+
+//  barGraph
+//    .selectAll('rect')
+//    .data(yearStats)
+//    .enter()
+//      .append('rect')
+//      .attr('class', 'std_dev')
+//      //.attr('stroke', '#000')
+//      .attr('x', function(d) {
+//        //return xScale(d.year) - ((width / yearStats.length) / 2);
+//        return xScale(d.year) - 3;
+//      })
+//      .attr('y', heightBig)
+//      //.attr('width', (width / yearStats.length))
+//      .attr('width', 3)
+//      .attr('height', function(d) {
+//        return yScaleSmall(d.stdDev);
+//      })
+
+  // add points to consensus line
+  svg
+    .selectAll('circle')
+    .data(yearStats)
+    .enter()
+      .append('circle')
+      .attr('class', 'mean')
+      .attr('cx', function(d) {
+        return xScale(d.year);
+      })
+      .attr('cy', function(d) {
+        return yScaleBig(d.mean)
+      })
+      .attr('r', function(d) {
+        //return d.n * 1.8;
+        //return Math.pow(d.n, 1.8);
+        //return (5 / d.n) * 2;
+        //console.log(d.range);
+        return 5;
+        //return d.range / 2.5;
+      })
+      .attr('fill', function(d) {
+        return 'rgba(95,168,160,' + (Math.pow((d.n / 5), 1.5)) + ')';
+        //return 'rgba(95,168,160,' + (d.n / 5) + ')';
+      })
+  
+//  svg
+//    .selectAll('circle')
+//    .on('mouseover', function(d) {
+//      console.log(d.stdDev);
+//      var index = yearStats.indexOf(d);
+//      var bar = barGraph
+//        .select('rect:nth-child(' + (index + 1) + ')')
+//        .transition()
+//        .duration(250)
+//          .style('fill', 'fuchsia')
+//    }) 
+//    .on('mouseout', function(d) {
+//       barGraph
+//        .selectAll('rect')
+//        .transition()
+//        .duration(250)
+//          .style('fill', 'cadetblue')
+//    })
+
+  var hoverLine = svg.append('line')
+    .attr('x1', 0)
+    .attr('x2', 0)
+    .attr('y1', 0)
+    .attr('y2', heightBig)
+    .style('stroke', '#888')
+    
+  //var text = svg.append('text')
+    //.attr('x', 50)
+    //.attr('y', 50)
+    //.text('hiya')
+
+  // wire up hoverLine actions
+  d3.select('svg')
+    .on('mousemove', function() {
+      var mouse = d3.mouse(this);
+      
+      // constrain hoverLine on right and left edges
+      if (mouse[0] < marginBigVis.left) {
+        mouse[0] = marginBigVis.left;
+      } else if (mouse[0] > width + marginBigVis.right 
+          + marginBigVis.left - 10) {
+        mouse[0] = width + marginBigVis.right + marginBigVis.left - 10;
+      }
+
+      // update hoverLine position
+      hoverLine
+        .attr('x1', mouse[0] - marginBigVis.left 
+          - marginBigVis.right + 10)
+        .attr('x2', mouse[0] - marginBigVis.left 
+          - marginBigVis.right + 10)
+
+      // figure out which year is being hovered over
+      var yearHover =   
+        Math.floor(xScale.invert(mouse[0] - marginBigVis.left 
+        - marginBigVis.right + 10));
+
+      var index;
+      yearStats.forEach(function(d, i) {
+        if (d.year === yearHover) {
+          index = i;
+        }
+      })
+
+      //d3.select('svg circle:nth-child(' + index + ')')
+        //.style('fill', 'fuchsia')
+
+
+      // update callout
+      yearStats.forEach(function(d) {
+        if ((d.year) === yearHover) {
+          var index = yearStats.indexOf(d);
+          d3.select('#year')
+            .text(d.year)
+          d3.select('#mean')
+            //.text(decFormat(d.mean) + 'M')
+            .text(function() {
+              var prefix = d3.formatPrefix(d.mean / 10)
+              return prefix.scale(d.mean).toFixed() + prefix.symbol;
+            })
+            .style('color', function() {
+              return 'rgba(95,168,160,' + (d.n / 5) + ')';
+            }) 
+//          d3.select('#range')
+//            .text(function() {
+//              var prefix = d3.formatPrefix(d.range / 10)
+//              return prefix.scale(d.range).toFixed() + prefix.symbol;
+//            })
+//            .style('color', function() {
+//              return 'rgba(95,168,160,' + (d.range / 5) + ')';
+//            }) 
+        
+        }
+      })
+
+      // highlight point being hovered over
+      
+      
+    }); // end d3.select('svg')
+    
+
+
+}; // end createVis()
+
+// calculate standard deviation of an array of numbers
+function stdDev(vals) {
+  if (vals.length === 1) return 0;
+
+  var mean = d3.mean(vals)
+  var sums = [];
+  vals.forEach(function(v) {
+    sums.push(Math.pow((v - mean), 2));
+  });
+
+  return Math.sqrt(d3.sum(sums) / (vals.length - 1));
+}
