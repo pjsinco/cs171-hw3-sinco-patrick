@@ -107,7 +107,7 @@ d3.csv('population-data.csv', function(data) {
 }); // end d3.csv()
 
 function createVis() {
-  //console.log(yearStats);
+  console.log(yearStats);
 
   // extent is years
   xScale
@@ -181,9 +181,38 @@ function createVis() {
       .style('stroke', '#ccc')
       .style('stroke-width', 3)
 
+  // add range bar graph
+//  svg.selectAll('.rangeBar')
+//    .data(yearStats)
+//    .enter()
+//      .append('rect')
+//      .attr('class', 'rangeBar')
+//      .style('fill', '#ddd')
+//      .attr('x', function(d) {
+//        return xScale(d.year) - 1.5;
+//      })
+//      .attr('y', function(d) {
+//        return yScaleBig(d.mean)
+//      })
+//      .attr('height', function(d) {
+//        console.log(yScaleBig(d.range) - heightBig);
+//        //return yScaleBig(d.range) - heightBig;
+//        return d.range;
+//        //return d.range;
+//      })
+//      .attr('width', 3)
+//      .attr('transform', function(d) {
+//        return 'translate(0, -' + (d.range / 2) + ')';
+//      })
+  
+    
+
+
+
+
   // add upside down bar graph for stdDev vals 
-  var barGraph = svg.append('g')
-    .attr('class', 'bar_graph');
+  //var barGraph = svg.append('g')
+    //.attr('class', 'bar_graph');
 
 //  barGraph
 //    .selectAll('rect')
@@ -221,8 +250,8 @@ function createVis() {
         //return Math.pow(d.n, 1.8);
         //return (5 / d.n) * 2;
         //console.log(d.range);
-        //return 5;
-        return d.range / 2.5;
+        return 5;
+        //return d.range / 2.5;
       })
       .attr('fill', function(d) {
         return 'rgba(95,168,160,' + (Math.pow((d.n / 5), 1.5)) + ')';
@@ -306,6 +335,11 @@ function createVis() {
             .text(decFormat(d.mean) + 'M')
             .style('color', function() {
               return 'rgba(95,168,160,' + (d.n / 5) + ')';
+            }) 
+          d3.select('#range')
+            .text(decFormat(d.range) + 'M')
+            .style('color', function() {
+              return 'rgba(95,168,160,' + (d.range / 5) + ')';
             }) 
         
         }

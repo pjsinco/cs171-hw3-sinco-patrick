@@ -38,7 +38,7 @@
           position: absolute;
           width: 200px;
           height: 100px;
-          top: 25px;
+          top: 35px;
           left: 50px;
           padding: 10px;
           font-family: sans-serif;
@@ -56,16 +56,33 @@
           font-size: 96px;
           font-weight: 800;
           color: cadetblue;
+          margin-top: -10px;
+          margin-left: -8px;
+        }
+        p#range {
+          font-size: 24px; 
+          color: cadetblue;
+        }
+        h1 {
+          margin: 0;
+          font-weight: 100;
+          color: #888;
+          font-size: 24px;
+          font-family: sans-serif;
+          position: absolute;
+          left: 70px;
+          top: 20px;
         }
     </style>
 
 </head>
 <body>
+    <h1>Estimated World Population by Year</h1>
     <div id="vis">
       <div id="callout">
         <p id='year'>Year</p>
         <p id='mean'>0M</p>
-        <!--<p id='n'># estimates:</p>-->
+        <p id='range'>range</p>
       </div>
     </div>
   
