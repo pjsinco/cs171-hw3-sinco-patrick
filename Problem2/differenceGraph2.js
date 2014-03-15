@@ -130,26 +130,38 @@ function createVis() {
       return d.stdDev;
     }));
 
+  // add X axis
   svg
     .append('g')
     .attr('class', 'x axis')
     .attr('transform', 'translate(0,' + heightBig + ')')
     .call(xAxis)
 
+  // add big Y axis
   svg
     .append('g')
     .attr('class', 'y axis')
     .attr('transform', 'translate(0,0)')
     .call(yAxisBig)
 
+  // add little Y axis
   svg
     .append('g')
     .attr('class', 'y axis')
     .attr('transform', 'translate(0,' + heightBig + ')')
     .call(yAxisSmall)
 
-  
-
+  // add consensus line
+  svg
+    .append('path')
+    .datum(yearStats)
+      .attr('class', 'line')
+      .attr('d', function(d) {
+        return line(d);
+      })
+      .style('fill', 'none')
+      .style('stroke', '#555')
+      .style('stroke-width', 3)
 }; // end createVis()
 
 
