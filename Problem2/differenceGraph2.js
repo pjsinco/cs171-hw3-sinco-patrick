@@ -68,7 +68,6 @@ d3.csv('population-data.csv', function(data) {
     })
   });
 
-
   // turn all csv values into ints
   //data.forEach(function(y) {
     //keys.forEach(function(k) {
@@ -94,20 +93,50 @@ d3.csv('population-data.csv', function(data) {
     yearStats.push(
       {
         year: +y.year,
-        low: yearMin,
-        high: yearMax,
-        mean: yearMean,
-        range: yearMax - yearMin,
+        low: yearMin / 1000000,
+        high: yearMax / 1000000,
+        mean: yearMean / 1000000,
+        range: (yearMax - yearMin) / 1000000,
         n: num,
-        stdDev: stdDev(vals)
+        stdDev: stdDev(vals) / 1000000
       }
     )
   })
   
-  console.log(yearStats);
-  
+  return createVis();
 
 }); // end d3.csv()
+
+function createVis() {
+  console.log(yearStats);
+
+  // extent is years
+  xScale
+    .domain(d3.extent(yearStats, function(d) {
+      return d.year;
+    }));
+
+  // extent is mean
+  yScaleBig 
+    .domain(d3.extent(yearStats, function(d) {
+      return d.mean;
+    }));
+
+
+  // extent is std dev
+  yScaleSmall
+    .domain(d3.extent(yearStats, function(d) {
+      return d.stdDev;
+    }));
+
+  console.log(xScale.domain());
+  console.log(yScaleBig.domain());
+  console.log(yScaleSmall.domain());
+
+  
+
+}; // end createVis()
+
 
 // calculate standard deviation of an array of numbers
 function stdDev(vals) {
