@@ -36,8 +36,7 @@ var xAxis = d3.svg.axis()
   .tickValues(['0', '1500', '1600', '1700', '1800', '1900', 
     '2000', '2050'])
   .tickFormat(d3.format('d'));
-  
-var yAxisBig = d3.svg.axis()
+  var yAxisBig = d3.svg.axis()
   .scale(yScaleBig)
   .orient('left')
   .tickFormat(d3.format('.2s'));
@@ -55,23 +54,6 @@ var svg = d3.select('#vis')
   .append('g')
     .attr('transform', 'translate(' + marginBigVis.left + ','
       + marginBigVis.right + ')');
-
-//var callout = svg.append('text')
-//  .attr('class', 'callout')
-//  .attr('x', 50)
-//  .attr('y', 50)
-//
-//callout
-//  .html('<span id=\'year\'><span>')
-
-//callout
-//  .append('h3')
-//  .append('text')
-//    .text('year')
-//
-//callout
-//  .append('p')
-//    .text('hiya')
 
 var line = d3.svg.line()
   .x(function(d) {
@@ -91,12 +73,6 @@ d3.csv('population-data.csv', function(data) {
     })
   });
 
-  // turn all csv values into ints
-  //data.forEach(function(y) {
-    //keys.forEach(function(k) {
-      //y[k] = +y[k];
-    //})
-  //});
 
   // generate year-by-year descriptive stats
   data.forEach(function(y) {
@@ -145,7 +121,6 @@ function createVis() {
       return d.mean;
     }));
 
-
   // extent is std dev
   yScaleSmall
     .domain(d3.extent(yearStats, function(d) {
@@ -188,11 +163,11 @@ function createVis() {
     .call(yAxisBig)
 
   // add little Y axis
-  svg
-    .append('g')
-    .attr('class', 'y axis')
-    .attr('transform', 'translate(0,' + heightBig + ')')
-    .call(yAxisSmall)
+//  svg
+//    .append('g')
+//    .attr('class', 'y axis')
+//    .attr('transform', 'translate(0,' + heightBig + ')')
+//    .call(yAxisSmall)
 
   // add consensus line
   svg
@@ -210,23 +185,23 @@ function createVis() {
   var barGraph = svg.append('g')
     .attr('class', 'bar_graph');
 
-  barGraph
-    .selectAll('rect')
-    .data(yearStats)
-    .enter()
-      .append('rect')
-      .attr('class', 'std_dev')
-      //.attr('stroke', '#000')
-      .attr('x', function(d) {
-        //return xScale(d.year) - ((width / yearStats.length) / 2);
-        return xScale(d.year) - 3;
-      })
-      .attr('y', heightBig)
-      //.attr('width', (width / yearStats.length))
-      .attr('width', 3)
-      .attr('height', function(d) {
-        return yScaleSmall(d.stdDev);
-      })
+//  barGraph
+//    .selectAll('rect')
+//    .data(yearStats)
+//    .enter()
+//      .append('rect')
+//      .attr('class', 'std_dev')
+//      //.attr('stroke', '#000')
+//      .attr('x', function(d) {
+//        //return xScale(d.year) - ((width / yearStats.length) / 2);
+//        return xScale(d.year) - 3;
+//      })
+//      .attr('y', heightBig)
+//      //.attr('width', (width / yearStats.length))
+//      .attr('width', 3)
+//      .attr('height', function(d) {
+//        return yScaleSmall(d.stdDev);
+//      })
 
   // add points to consensus line
   svg
@@ -245,11 +220,13 @@ function createVis() {
         //return d.n * 1.8;
         //return Math.pow(d.n, 1.8);
         //return (5 / d.n) * 2;
-        return 5;
+        //console.log(d.range);
+        //return 5;
+        return d.range / 2.5;
       })
       .attr('fill', function(d) {
-        //return 'rgba(95,168,160,' + ( 5 / Math.pow((d.n / 5), 1.5)) + ')';
-        return 'rgba(95,168,160,' + (d.n / 5) + ')';
+        return 'rgba(95,168,160,' + (Math.pow((d.n / 5), 1.5)) + ')';
+        //return 'rgba(95,168,160,' + (d.n / 5) + ')';
       })
   
 //  svg
@@ -276,7 +253,7 @@ function createVis() {
     .attr('x2', 0)
     .attr('y1', 0)
     .attr('y2', heightBig)
-    .style('stroke', 'fuchsia')
+    .style('stroke', '#888')
     
   //var text = svg.append('text')
     //.attr('x', 50)
@@ -304,13 +281,24 @@ function createVis() {
           - marginBigVis.right + 10)
 
       // figure out which year is being hovered over
-      var yearHover = Math.floor(xScale.invert(mouse[0] - marginBigVis.left 
-          - marginBigVis.right + 10));
+      var yearHover =   
+        Math.floor(xScale.invert(mouse[0] - marginBigVis.left 
+        - marginBigVis.right + 10));
+
+      var index;
+      yearStats.forEach(function(d, i) {
+        if (d.year === yearHover) {
+          index = i;
+        }
+      })
+
+      //d3.select('svg circle:nth-child(' + index + ')')
+        //.style('fill', 'fuchsia')
+
 
       // update callout
       yearStats.forEach(function(d) {
         if ((d.year) === yearHover) {
-          console.log(d);
           var index = yearStats.indexOf(d);
           d3.select('#year')
             .text(d.year)
@@ -320,12 +308,11 @@ function createVis() {
               return 'rgba(95,168,160,' + (d.n / 5) + ')';
             }) 
         
-          //d3.select('#n')
-            //.text(d.n)
         }
       })
 
       // highlight point being hovered over
+      
       
     }); // end d3.select('svg')
     
