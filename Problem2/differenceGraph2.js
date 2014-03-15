@@ -17,6 +17,7 @@ var heightBig = 500 - marginBigVis.top - marginBigVis.bottom; // 380
 var heightSmall = 
   500 - marginSmallVis.top - marginSmallVis.bottom; // 130
 var yearStats = [];
+var decFormat = d3.format('.0f');
 
 var xScale = d3.scale.pow()
   .exponent(15)
@@ -54,6 +55,23 @@ var svg = d3.select('#vis')
   .append('g')
     .attr('transform', 'translate(' + marginBigVis.left + ','
       + marginBigVis.right + ')');
+
+//var callout = svg.append('text')
+//  .attr('class', 'callout')
+//  .attr('x', 50)
+//  .attr('y', 50)
+//
+//callout
+//  .html('<span id=\'year\'><span>')
+
+//callout
+//  .append('h3')
+//  .append('text')
+//    .text('year')
+//
+//callout
+//  .append('p')
+//    .text('hiya')
 
 var line = d3.svg.line()
   .x(function(d) {
@@ -234,24 +252,24 @@ function createVis() {
         return 'rgba(95,168,160,' + (d.n / 5) + ')';
       })
   
-  svg
-    .selectAll('circle')
-    .on('mouseover', function(d) {
-      console.log(d.stdDev);
-      var index = yearStats.indexOf(d);
-      var bar = barGraph
-        .select('rect:nth-child(' + (index + 1) + ')')
-        .transition()
-        .duration(250)
-          .style('fill', 'fuchsia')
-    }) 
-    .on('mouseout', function(d) {
-       barGraph
-        .selectAll('rect')
-        .transition()
-        .duration(250)
-          .style('fill', 'cadetblue')
-    })
+//  svg
+//    .selectAll('circle')
+//    .on('mouseover', function(d) {
+//      console.log(d.stdDev);
+//      var index = yearStats.indexOf(d);
+//      var bar = barGraph
+//        .select('rect:nth-child(' + (index + 1) + ')')
+//        .transition()
+//        .duration(250)
+//          .style('fill', 'fuchsia')
+//    }) 
+//    .on('mouseout', function(d) {
+//       barGraph
+//        .selectAll('rect')
+//        .transition()
+//        .duration(250)
+//          .style('fill', 'cadetblue')
+//    })
 
   var hoverLine = svg.append('line')
     .attr('x1', 0)
@@ -260,19 +278,57 @@ function createVis() {
     .attr('y2', heightBig)
     .style('stroke', 'fuchsia')
     
+  //var text = svg.append('text')
+    //.attr('x', 50)
+    //.attr('y', 50)
+    //.text('hiya')
+
+  // wire up hoverLine actions
   d3.select('svg')
     .on('mousemove', function() {
       var mouse = d3.mouse(this);
+      
+      // constrain hoverLine on right and left edges
       if (mouse[0] < marginBigVis.left) {
         mouse[0] = marginBigVis.left;
       } else if (mouse[0] > width + marginBigVis.right 
           + marginBigVis.left - 10) {
         mouse[0] = width + marginBigVis.right + marginBigVis.left - 10;
       }
+
+      // update hoverLine position
       hoverLine
-        .attr('x1', mouse[0] - marginBigVis.left - marginBigVis.right + 10)
-        .attr('x2', mouse[0] - marginBigVis.left - marginBigVis.right + 10)
-    })
+        .attr('x1', mouse[0] - marginBigVis.left 
+          - marginBigVis.right + 10)
+        .attr('x2', mouse[0] - marginBigVis.left 
+          - marginBigVis.right + 10)
+
+      // figure out which year is being hovered over
+      var yearHover = Math.floor(xScale.invert(mouse[0] - marginBigVis.left 
+          - marginBigVis.right + 10));
+
+      // update callout
+      yearStats.forEach(function(d) {
+        if ((d.year) === yearHover) {
+          console.log(d);
+          var index = yearStats.indexOf(d);
+          d3.select('#year')
+            .text(d.year)
+          d3.select('#mean')
+            .text(decFormat(d.mean) + 'M')
+            .style('color', function() {
+              return 'rgba(95,168,160,' + (d.n / 5) + ')';
+            }) 
+        
+          //d3.select('#n')
+            //.text(d.n)
+        }
+      })
+
+      // highlight point being hovered over
+      
+    }); // end d3.select('svg')
+    
 
 
 }; // end createVis()
