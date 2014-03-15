@@ -25,7 +25,7 @@ var yScaleBig = d3.scale.linear()
   .range([heightBig, 0]);
 
 var yScaleSmall = d3.scale.linear()
-  .range([heightSmall, 0]);
+  .range([0, heightSmall]);
 
 var xAxis = d3.svg.axis()
   .scale(xScale)
@@ -38,11 +38,12 @@ var yAxisBig = d3.svg.axis()
   .tickFormat(d3.format('.2s'));
 
 var yAxisSmall = d3.svg.axis()
-  .scale(yAxisSmall)
+  .scale(yScaleSmall)
   .orient('left')
+  .ticks(3)
   //.tickFormat(d3.format('.2s'));
 
-var svg = d3.select('body')
+var svg = d3.select('#vis')
   .append('svg')
   .attr('width', width + marginBigVis.left + marginBigVis.right)
   .attr('height', heightBig + marginBigVis.top + marginBigVis.bottom)
@@ -129,9 +130,23 @@ function createVis() {
       return d.stdDev;
     }));
 
-  console.log(xScale.domain());
-  console.log(yScaleBig.domain());
-  console.log(yScaleSmall.domain());
+  svg
+    .append('g')
+    .attr('class', 'x axis')
+    .attr('transform', 'translate(0,' + heightBig + ')')
+    .call(xAxis)
+
+  svg
+    .append('g')
+    .attr('class', 'y axis')
+    .attr('transform', 'translate(0,0)')
+    .call(yAxisBig)
+
+  svg
+    .append('g')
+    .attr('class', 'y axis')
+    .attr('transform', 'translate(0,' + heightBig + ')')
+    .call(yAxisSmall)
 
   
 
