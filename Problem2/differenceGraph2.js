@@ -30,7 +30,8 @@ var yScaleSmall = d3.scale.linear()
 
 var xAxis = d3.svg.axis()
   .scale(xScale)
-  .orient('bottom')
+  .orient('top')
+  .tickSize(heightBig)
   .tickValues(['0', '1500', '1600', '1700', '1800', '1900', 
     '2000', '2050'])
   .tickFormat(d3.format('d'));
@@ -112,7 +113,7 @@ d3.csv('population-data.csv', function(data) {
 }); // end d3.csv()
 
 function createVis() {
-  console.log(yearStats);
+  //console.log(yearStats);
 
   // extent is years
   xScale
@@ -184,10 +185,52 @@ function createVis() {
         return line(d);
       })
       .style('fill', 'none')
-      .style('stroke', '#555')
+      .style('stroke', '#ccc')
       .style('stroke-width', 3)
-}; // end createVis()
 
+  // add upside down bar graph for stdDev vals 
+  svg
+    .selectAll('rect')
+    .data(yearStats)
+    .enter()
+      .append('rect')
+      .attr('class', 'std_dev')
+      .attr('x', function(d) {
+        return xScale(d.year) - ((width / yearStats.length) / 2);
+      })
+      .attr('y', heightBig)
+      .attr('width', (width / yearStats.length))
+      .attr('height', function(d) {
+        return yScaleSmall(d.stdDev);
+      })
+
+  // add points to consensus line
+  svg
+    .selectAll('circle')
+    .data(yearStats)
+    .enter()
+      .append('circle')
+      .attr('class', 'mean')
+      .attr('cx', function(d) {
+        return xScale(d.year);
+      })
+      .attr('cy', function(d) {
+        return yScaleBig(d.mean)
+      })
+      .attr('r', function(d) {
+        //return d.n * 1.8;
+        return Math.pow(d.n, 1.8);
+      })
+      .attr('fill', function(d) {
+        return 'rgba(95,168,160,' + Math.pow((d.n / 5), 1.5) + ')';
+      })
+  
+
+
+
+
+
+}; // end createVis()
 
 // calculate standard deviation of an array of numbers
 function stdDev(vals) {
