@@ -6,7 +6,7 @@ var marginBigVis = {
   left: 40
 }
 var marginSmallVis = {
-  top: 430,
+  top: 330,
   right: 10,
   bottom: 20,
   left: 40
@@ -15,7 +15,7 @@ var marginSmallVis = {
 var width = 960 - marginBigVis.right - marginBigVis.left; // 890
 var heightBig = 500 - marginBigVis.top - marginBigVis.bottom; // 380
 var heightSmall = 
-  500 - marginSmallVis.top - marginSmallVis.bottom; // 30
+  500 - marginSmallVis.top - marginSmallVis.bottom; // 130
 var yearStats = [];
 
 var xScale = d3.scale.pow()
@@ -189,17 +189,23 @@ function createVis() {
       .style('stroke-width', 3)
 
   // add upside down bar graph for stdDev vals 
-  svg
+  var barGraph = svg.append('g')
+    .attr('class', 'bar_graph');
+
+  barGraph
     .selectAll('rect')
     .data(yearStats)
     .enter()
       .append('rect')
       .attr('class', 'std_dev')
+      //.attr('stroke', '#000')
       .attr('x', function(d) {
-        return xScale(d.year) - ((width / yearStats.length) / 2);
+        //return xScale(d.year) - ((width / yearStats.length) / 2);
+        return xScale(d.year) - 3;
       })
       .attr('y', heightBig)
-      .attr('width', (width / yearStats.length))
+      //.attr('width', (width / yearStats.length))
+      .attr('width', 3)
       .attr('height', function(d) {
         return yScaleSmall(d.stdDev);
       })
@@ -219,15 +225,54 @@ function createVis() {
       })
       .attr('r', function(d) {
         //return d.n * 1.8;
-        return Math.pow(d.n, 1.8);
+        //return Math.pow(d.n, 1.8);
+        //return (5 / d.n) * 2;
+        return 5;
       })
       .attr('fill', function(d) {
-        return 'rgba(95,168,160,' + Math.pow((d.n / 5), 1.5) + ')';
+        //return 'rgba(95,168,160,' + ( 5 / Math.pow((d.n / 5), 1.5)) + ')';
+        return 'rgba(95,168,160,' + (d.n / 5) + ')';
       })
   
+  svg
+    .selectAll('circle')
+    .on('mouseover', function(d) {
+      console.log(d.stdDev);
+      var index = yearStats.indexOf(d);
+      var bar = barGraph
+        .select('rect:nth-child(' + (index + 1) + ')')
+        .transition()
+        .duration(250)
+          .style('fill', 'fuchsia')
+    }) 
+    .on('mouseout', function(d) {
+       barGraph
+        .selectAll('rect')
+        .transition()
+        .duration(250)
+          .style('fill', 'cadetblue')
+    })
 
-
-
+  var hoverLine = svg.append('line')
+    .attr('x1', 0)
+    .attr('x2', 0)
+    .attr('y1', 0)
+    .attr('y2', heightBig)
+    .style('stroke', 'fuchsia')
+    
+  d3.select('svg')
+    .on('mousemove', function() {
+      var mouse = d3.mouse(this);
+      if (mouse[0] < marginBigVis.left) {
+        mouse[0] = marginBigVis.left;
+      } else if (mouse[0] > width + marginBigVis.right 
+          + marginBigVis.left - 10) {
+        mouse[0] = width + marginBigVis.right + marginBigVis.left - 10;
+      }
+      hoverLine
+        .attr('x1', mouse[0] - marginBigVis.left - marginBigVis.right + 10)
+        .attr('x2', mouse[0] - marginBigVis.left - marginBigVis.right + 10)
+    })
 
 
 }; // end createVis()
